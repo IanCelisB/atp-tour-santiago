@@ -50,6 +50,12 @@ model Jugador {
   ranking         Int?
   bio             String?
   fotoUrl         String?
+  resistencia     Int       @default(50)
+  velocidad       Int       @default(50)
+  derecho         Int       @default(50)
+  reves           Int       @default(50)
+  estatura        Int       @default(170)
+  poder           Int       @default(50)
   partidosComoJ1  Partido[] @relation("PartidoJ1")
   partidosComoJ2  Partido[] @relation("PartidoJ2")
   partidosGanados Partido[] @relation("PartidoWinner")
