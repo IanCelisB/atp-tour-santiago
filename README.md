@@ -8,18 +8,18 @@ brackets y timeline de partidos.
 
 ## Stack
 
-| Capa | Tecnología |
-|------|------------|
-| Framework | [Next.js 16](https://nextjs.org) (App Router) |
-| UI | React 19 + Tailwind CSS v4 |
-| Lenguaje | TypeScript 5 (strict) |
-| ORM | Prisma 7 (driver-adapter pattern) |
-| Base de datos | SQLite local (`prisma/dev.db`) |
-| Validación | Zod 4 |
-| Tests unitarios | Vitest 4 (jsdom, coverage v8, umbral 70%) |
-| Tests E2E | Playwright 1.61 (Chromium) |
-| Package manager | pnpm 9+ |
-| CI | GitHub Actions |
+| Capa            | Tecnología                                    |
+| --------------- | --------------------------------------------- |
+| Framework       | [Next.js 16](https://nextjs.org) (App Router) |
+| UI              | React 19 + Tailwind CSS v4                    |
+| Lenguaje        | TypeScript 5 (strict)                         |
+| ORM             | Prisma 7 (driver-adapter pattern)             |
+| Base de datos   | SQLite local (`prisma/dev.db`)                |
+| Validación      | Zod 4                                         |
+| Tests unitarios | Vitest 4 (jsdom, coverage v8, umbral 70%)     |
+| Tests E2E       | Playwright 1.61 (Chromium)                    |
+| Package manager | pnpm 9+                                       |
+| CI              | GitHub Actions                                |
 
 ## Quick start
 
@@ -47,25 +47,25 @@ test de Playwright pasando contra esa URL.
 
 ## Scripts
 
-| Comando | Qué hace |
-|---------|----------|
-| `pnpm dev` | Dev server en `http://localhost:3000` |
-| `pnpm build` | Build de producción |
-| `pnpm start` | Sirve el build |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm format` | Aplica Prettier |
-| `pnpm format:check` | Verifica formato sin escribir |
-| `pnpm test` | Suite Vitest (sin watch) |
-| `pnpm test:watch` | Vitest en modo watch |
-| `pnpm test:coverage` | Vitest con coverage v8 (umbral 70%) |
-| `pnpm test:e2e` | Playwright E2E (auto-boot del dev server) |
-| `pnpm db:generate` | Regenerar cliente Prisma |
-| `pnpm db:migrate` | Crear y aplicar migración en dev |
-| `pnpm db:push` | Push schema sin migración (solo prototyping) |
-| `pnpm db:reset` | Reset DB y re-correr migraciones |
-| `pnpm db:studio` | Abrir Prisma Studio |
-| `pnpm db:validate` | Validar `schema.prisma` |
+| Comando              | Qué hace                                     |
+| -------------------- | -------------------------------------------- |
+| `pnpm dev`           | Dev server en `http://localhost:3000`        |
+| `pnpm build`         | Build de producción                          |
+| `pnpm start`         | Sirve el build                               |
+| `pnpm lint`          | ESLint                                       |
+| `pnpm typecheck`     | `tsc --noEmit`                               |
+| `pnpm format`        | Aplica Prettier                              |
+| `pnpm format:check`  | Verifica formato sin escribir                |
+| `pnpm test`          | Suite Vitest (sin watch)                     |
+| `pnpm test:watch`    | Vitest en modo watch                         |
+| `pnpm test:coverage` | Vitest con coverage v8 (umbral 70%)          |
+| `pnpm test:e2e`      | Playwright E2E (auto-boot del dev server)    |
+| `pnpm db:generate`   | Regenerar cliente Prisma                     |
+| `pnpm db:migrate`    | Crear y aplicar migración en dev             |
+| `pnpm db:push`       | Push schema sin migración (solo prototyping) |
+| `pnpm db:reset`      | Reset DB y re-correr migraciones             |
+| `pnpm db:studio`     | Abrir Prisma Studio                          |
+| `pnpm db:validate`   | Validar `schema.prisma`                      |
 
 ## Gate de calidad local
 

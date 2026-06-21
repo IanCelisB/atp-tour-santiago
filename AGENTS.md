@@ -19,56 +19,56 @@ the more specific doc wins. If you cannot resolve the conflict, stop and ask.
 
 ## Detected Stack
 
-| Layer | Choice | Version | Notes |
-|-------|--------|---------|-------|
-| Framework | Next.js (App Router) | 16.2.9 | No `src/` dir; alias `@/*` → repo root |
-| UI | React | 19.2.4 | |
-| Styling | Tailwind CSS | 4 | |
-| Language | TypeScript | 5 | Strict mode |
-| ORM | Prisma | 7.8 | Driver-adapter pattern (no built-in SQLite driver) |
-| Database | SQLite (local file) | — | `prisma/dev.db`, configured via `prisma.config.ts` |
-| Validation | Zod | 4.4 | v4 breaking changes vs v3 — check migration guide |
-| Unit tests | Vitest | 4.1 | jsdom env, v8 coverage, 70% threshold |
-| E2E tests | Playwright | 1.61 | Chromium only, `e2e/` dir |
-| Package manager | pnpm | 9+ | `pnpm-lock.yaml` is the source of truth |
-| Lint / format | ESLint 9 + Prettier 3 | — | `prettier-plugin-tailwindcss` for class sort |
-| CI | GitHub Actions | — | `.github/workflows/ci.yml` |
+| Layer           | Choice                | Version | Notes                                              |
+| --------------- | --------------------- | ------- | -------------------------------------------------- |
+| Framework       | Next.js (App Router)  | 16.2.9  | No `src/` dir; alias `@/*` → repo root             |
+| UI              | React                 | 19.2.4  |                                                    |
+| Styling         | Tailwind CSS          | 4       |                                                    |
+| Language        | TypeScript            | 5       | Strict mode                                        |
+| ORM             | Prisma                | 7.8     | Driver-adapter pattern (no built-in SQLite driver) |
+| Database        | SQLite (local file)   | —       | `prisma/dev.db`, configured via `prisma.config.ts` |
+| Validation      | Zod                   | 4.4     | v4 breaking changes vs v3 — check migration guide  |
+| Unit tests      | Vitest                | 4.1     | jsdom env, v8 coverage, 70% threshold              |
+| E2E tests       | Playwright            | 1.61    | Chromium only, `e2e/` dir                          |
+| Package manager | pnpm                  | 9+      | `pnpm-lock.yaml` is the source of truth            |
+| Lint / format   | ESLint 9 + Prettier 3 | —       | `prettier-plugin-tailwindcss` for class sort       |
+| CI              | GitHub Actions        | —       | `.github/workflows/ci.yml`                         |
 
 ## Project Conventions
 
-| Convention | Rule |
-|------------|------|
-| Commits | **Conventional Commits only.** Format: `<type>(<scope>): <subject>`. No "Co-Authored-By" lines. No AI attribution. |
-| Types | `feat`, `fix`, `chore`, `ci`, `docs`, `refactor`, `test`, `style`, `perf` |
-| Branching | `stacked-to-main` — every PR merges directly to `main`, no long-lived feature branches |
-| PR scope | One work unit per PR. Hard ceiling: 400 changed lines. Split into chained PRs above that. |
-| Commits per PR | One logical change per commit. Tests travel with the code they verify. Docs travel with the user-visible change. |
-| Strict TDD | For any new logic: RED → GREEN → TRIANGULATE → REFACTOR. No production code without a failing test first. |
-| File layout | `app/` (routes), `lib/` (domain + clients), `components/` (UI atoms/molecules), `prisma/` (schema + migrations), `e2e/` (Playwright). NO `src/` dir. |
-| Aliases | Always use `@/lib/...`, never relative paths that escape the file's directory. |
-| Path casing | macOS devs: case-sensitive matters in CI. Always match the real on-disk casing. |
+| Convention     | Rule                                                                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Commits        | **Conventional Commits only.** Format: `<type>(<scope>): <subject>`. No "Co-Authored-By" lines. No AI attribution.                                   |
+| Types          | `feat`, `fix`, `chore`, `ci`, `docs`, `refactor`, `test`, `style`, `perf`                                                                            |
+| Branching      | `stacked-to-main` — every PR merges directly to `main`, no long-lived feature branches                                                               |
+| PR scope       | One work unit per PR. Hard ceiling: 400 changed lines. Split into chained PRs above that.                                                            |
+| Commits per PR | One logical change per commit. Tests travel with the code they verify. Docs travel with the user-visible change.                                     |
+| Strict TDD     | For any new logic: RED → GREEN → TRIANGULATE → REFACTOR. No production code without a failing test first.                                            |
+| File layout    | `app/` (routes), `lib/` (domain + clients), `components/` (UI atoms/molecules), `prisma/` (schema + migrations), `e2e/` (Playwright). NO `src/` dir. |
+| Aliases        | Always use `@/lib/...`, never relative paths that escape the file's directory.                                                                       |
+| Path casing    | macOS devs: case-sensitive matters in CI. Always match the real on-disk casing.                                                                      |
 
 ## Scripts
 
-| Command | What it does |
-|---------|--------------|
-| `pnpm dev` | Start Next.js dev server on `http://localhost:3000` |
-| `pnpm build` | Production build (also runs as final CI gate) |
-| `pnpm start` | Serve the production build |
-| `pnpm lint` | Run ESLint (config-next + TypeScript rules) |
-| `pnpm typecheck` | `tsc --noEmit` against strict TS config |
-| `pnpm format` | Write Prettier formatting across the repo |
-| `pnpm format:check` | Verify formatting without writing (CI-safe) |
-| `pnpm test` | Run Vitest suite once (no watch) |
-| `pnpm test:watch` | Vitest watch mode for local dev |
+| Command              | What it does                                                                  |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `pnpm dev`           | Start Next.js dev server on `http://localhost:3000`                           |
+| `pnpm build`         | Production build (also runs as final CI gate)                                 |
+| `pnpm start`         | Serve the production build                                                    |
+| `pnpm lint`          | Run ESLint (config-next + TypeScript rules)                                   |
+| `pnpm typecheck`     | `tsc --noEmit` against strict TS config                                       |
+| `pnpm format`        | Write Prettier formatting across the repo                                     |
+| `pnpm format:check`  | Verify formatting without writing (CI-safe)                                   |
+| `pnpm test`          | Run Vitest suite once (no watch)                                              |
+| `pnpm test:watch`    | Vitest watch mode for local dev                                               |
 | `pnpm test:coverage` | Vitest with v8 coverage — enforces 70% on lines/branches/functions/statements |
-| `pnpm test:e2e` | Playwright E2E (auto-boots `pnpm dev` via webServer config) |
-| `pnpm db:generate` | Regenerate Prisma client |
-| `pnpm db:migrate` | Create + apply a new migration in dev |
-| `pnpm db:push` | Push schema without migration (rapid prototyping only) |
-| `pnpm db:reset` | Reset DB and re-run all migrations |
-| `pnpm db:studio` | Open Prisma Studio |
-| `pnpm db:validate` | Validate `schema.prisma` without connecting |
+| `pnpm test:e2e`      | Playwright E2E (auto-boots `pnpm dev` via webServer config)                   |
+| `pnpm db:generate`   | Regenerate Prisma client                                                      |
+| `pnpm db:migrate`    | Create + apply a new migration in dev                                         |
+| `pnpm db:push`       | Push schema without migration (rapid prototyping only)                        |
+| `pnpm db:reset`      | Reset DB and re-run all migrations                                            |
+| `pnpm db:studio`     | Open Prisma Studio                                                            |
+| `pnpm db:validate`   | Validate `schema.prisma` without connecting                                   |
 
 **Local quality gate (matches CI):**
 
@@ -129,8 +129,8 @@ persistent memory layer that survives across sessions and compactions.
 ```typescript
 // Example: recovering the init-repo spec
 const results = await mem_search({
-  query: "sdd/init-repo/spec",
-  project: "atptoursantiago",
+  query: 'sdd/init-repo/spec',
+  project: 'atptoursantiago',
 });
 const spec = await mem_get_observation({ id: results[0].id });
 ```
@@ -166,18 +166,18 @@ Each major change goes through five phases:
 
 **Canonical references for this repo:**
 
-| Artifact | Engram topic key | Status |
-|----------|------------------|--------|
-| `sdd/init-repo/proposal` | `sdd/init-repo/proposal` | Baseline (PR 1) |
-| `sdd/init-repo/spec` | `sdd/init-repo/spec` | Baseline (PR 1) |
-| `sdd/init-repo/design` | `sdd/init-repo/design` | Baseline (PR 1) |
-| `sdd/init-repo/tasks` | `sdd/init-repo/tasks` | 36/41 done (PRs 1-4 ✅) |
+| Artifact                       | Engram topic key               | Status                         |
+| ------------------------------ | ------------------------------ | ------------------------------ |
+| `sdd/init-repo/proposal`       | `sdd/init-repo/proposal`       | Baseline (PR 1)                |
+| `sdd/init-repo/spec`           | `sdd/init-repo/spec`           | Baseline (PR 1)                |
+| `sdd/init-repo/design`         | `sdd/init-repo/design`         | Baseline (PR 1)                |
+| `sdd/init-repo/tasks`          | `sdd/init-repo/tasks`          | 36/41 done (PRs 1-4 ✅)        |
 | `sdd/init-repo/apply-progress` | `sdd/init-repo/apply-progress` | PR 4 complete (this PR = PR 5) |
 
 To see the most recent decisions for this project:
 
 ```typescript
-await mem_context({ project: "atptoursantiago" });
+await mem_context({ project: 'atptoursantiago' });
 ```
 
 ## Out of Scope (Do NOT Implement)
