@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 
 interface Stat {
   label: string;
@@ -69,11 +69,8 @@ export function RadarChart({
     };
   });
 
-  // Unique ID for gradient/glow
-  const uniqueId = useMemo(
-    () => `radar-${Math.random().toString(36).slice(2, 9)}`,
-    []
-  );
+  // Unique ID for gradient/glow (React useId for SSR-safe unique IDs)
+  const uniqueId = useId();
 
   return (
     <svg

@@ -19,10 +19,35 @@ export default function Home() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             ATP Tour Santiago
           </h1>
-          <p className="text-lg leading-8 text-zinc-400">
-            Elegí una sección para comenzar.
-          </p>
         </div>
+
+        {/* Descripción */}
+        <section className="mt-8 max-w-3xl text-left">
+          <h2 className="mb-4 text-2xl font-semibold text-white">
+            ¿Qué es ATP Tour Santiago?
+          </h2>
+          <div className="space-y-4 text-base leading-7 text-zinc-300">
+            <p>
+              <strong className="text-white">ATP Tour Santiago</strong> es el
+              punto de encuentro digital del tenis profesional chileno.
+              Acá vas a encontrar toda la información sobre los campeonatos
+              que se disputan en Santiago, los jugadores que compiten, el
+              estado de cada partido y las últimas noticias del circuito.
+            </p>
+            <p>
+              Un <strong className="text-amber-400">campeonato</strong> es un
+              torneo de tenis donde los jugadores se enfrentan en un bracket
+              de eliminación directa. Desde la primera ronda hasta la final,
+              cada partido cuenta, y el que pierde queda fuera. Así se
+              coronan los campeones.
+            </p>
+            <p>
+              Explorá las secciones para conocer a los jugadores, seguir los
+              partidos en vivo, enterarte de los próximos torneos y mantenerte
+              al día con todo lo que pasa en el ATP Tour Santiago.
+            </p>
+          </div>
+        </section>
         <HomeMenu />
       </div>
     </main>

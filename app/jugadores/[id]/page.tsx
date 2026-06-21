@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { RadarChart } from "@/components/RadarChart";
 import { deleteJugador } from "../actions";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Player detail page — server component.
  *

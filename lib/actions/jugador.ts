@@ -16,7 +16,6 @@ export type JugadorRow = {
   nombre: string;
   apellido: string;
   pais: string;
-  slug: string;
   ranking: number | null;
   bio: string | null;
   fotoUrl: string | null;
@@ -43,12 +42,11 @@ export async function createJugadorAction(
     return { success: false, error: parsed.error.issues[0]?.message ?? "Validation failed" };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { slug, ...data } = parsed.data;
 
   try {
-    const row = await db.jugador.create({
-      data: { ...data, slug },
-    });
+    const row = await db.jugador.create({ data });
     return { success: true, data: row as JugadorRow };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : "Database error" };
@@ -65,12 +63,13 @@ export async function updateJugadorAction(
     return { success: false, error: parsed.error.issues[0]?.message ?? "Validation failed" };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { slug, ...data } = parsed.data;
 
   try {
     const row = await db.jugador.update({
       where: { id },
-      data: { ...data, slug },
+      data,
     });
     return { success: true, data: row as JugadorRow };
   } catch (e) {

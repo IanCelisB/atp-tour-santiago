@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { EditarJugadorForm } from "./form";
+import EditarJugadorForm from "./form";
+
+export const dynamic = "force-dynamic";
 
 /**
  * Edit Jugador page — server component.

@@ -47,7 +47,6 @@ describe("lib/actions/jugador", () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.id).toBeTruthy();
-      expect(result.data?.slug).toBe("nicolas-jarry");
       expect(result.data?.nombre).toBe("Nicolas");
       expect(result.data?.resistencia).toBe(80);
       expect(result.data?.velocidad).toBe(75);
