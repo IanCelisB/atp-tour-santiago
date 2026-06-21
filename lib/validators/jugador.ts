@@ -10,6 +10,7 @@ import { slugify } from '@/lib/slugify';
  *   - ranking: optional positive integer (>0) when set, null means unranked
  *   - bio: optional free-form string
  *   - slug: auto-derived from "nombre apellido" (OQ-1)
+ *   - stats: resistencia, velocidad, derecho, reves, poder (0-100), estatura (100-250 cm)
  */
 
 const nonEmptyString = (max: number) =>
@@ -31,6 +32,12 @@ export const createJugadorSchema = z
       .optional(),
     bio: z.string().max(2000).optional(),
     fotoUrl: z.string().max(500).optional(),
+    resistencia: z.number().int().min(0).max(100).default(50),
+    velocidad: z.number().int().min(0).max(100).default(50),
+    derecho: z.number().int().min(0).max(100).default(50),
+    reves: z.number().int().min(0).max(100).default(50),
+    estatura: z.number().int().min(100).max(250).default(170),
+    poder: z.number().int().min(0).max(100).default(50),
   })
   .transform((data) => ({
     ...data,

@@ -13,6 +13,7 @@ import { createJugadorSchema, type CreateJugadorInput } from './jugador';
  *   - P2.a: ranking=0 rejected
  *   - P2.b: ranking=null allowed
  *   - P2.c: ranking=-5 rejected
+ *   - Stats: resistencia, velocidad, derecho, reves, poder (0-100), estatura (100-250)
  */
 describe('lib/validators/jugador', () => {
   const validJugador: CreateJugadorInput = {
@@ -84,6 +85,64 @@ describe('lib/validators/jugador', () => {
     it('accepts ranking=null/undefined (P2.b — unranked)', () => {
       expect(createJugadorSchema.safeParse({ ...validJugador, ranking: null }).success).toBe(true);
       expect(createJugadorSchema.safeParse(validJugador).success).toBe(true);
+    });
+  });
+
+  describe('player stats validation', () => {
+    it('defaults all stats when omitted', () => {
+      const result = createJugadorSchema.parse(validJugador);
+      expect(result.resistencia).toBe(50);
+      expect(result.velocidad).toBe(50);
+      expect(result.derecho).toBe(50);
+      expect(result.reves).toBe(50);
+      expect(result.estatura).toBe(170);
+      expect(result.poder).toBe(50);
+    });
+
+    it('accepts custom stat values within range', () => {
+      const result = createJugadorSchema.safeParse({
+        ...validJugador,
+        resistencia: 80,
+        velocidad: 90,
+        derecho: 75,
+        reves: 65,
+        estatura: 195,
+        poder: 85,
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.resistencia).toBe(80);
+        expect(result.data.velocidad).toBe(90);
+        expect(result.data.derecho).toBe(75);
+        expect(result.data.reves).toBe(65);
+        expect(result.data.estatura).toBe(195);
+        expect(result.data.poder).toBe(85);
+      }
+    });
+
+    it('rejects resistencia > 100', () => {
+      const result = createJugadorSchema.safeParse({ ...validJugador, resistencia: 101 });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects resistencia < 0', () => {
+      const result = createJugadorSchema.safeParse({ ...validJugador, resistencia: -1 });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects estatura > 250', () => {
+      const result = createJugadorSchema.safeParse({ ...validJugador, estatura: 251 });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects estatura < 100', () => {
+      const result = createJugadorSchema.safeParse({ ...validJugador, estatura: 99 });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects non-integer stat values', () => {
+      const result = createJugadorSchema.safeParse({ ...validJugador, velocidad: 7.5 });
+      expect(result.success).toBe(false);
     });
   });
 
