@@ -1,0 +1,112 @@
+// Prisma schema — ATP Tour Santiago
+//
+// SQLite-backed for local dev (Docker is unavailable in this environment).
+// SQLite has no native enums or CHECK constraints, so:
+//   - Status-like fields use String with app-layer validation in PR 4.
+//   - The Foto XOR invariant (exactly one of jugadorId / partidoId set)
+//     is enforced in the app layer, not the database.
+//
+// Migration path to Postgres (next change that needs production DB):
+//   1. Swap provider: provider = "postgresql"
+//   2. Update DATABASE_URL in .env
+//   3. Run `prisma migrate dev --name migrate-to-postgres`
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Campeonato ────────────────────────────────────────────────────────────────
+
+model Campeonato {
+  id          String    @id @default(cuid())
+  nombre      String
+  slug        String    @unique
+  fechaInicio DateTime
+  fechaFin    DateTime?
+  sede        String
+  categoria   String
+  // Allowed values: PROGRAMADO | EN_CURSO | FINALIZADO | CANCELADO (app-layer)
+  estado      String    @default("PROGRAMADO")
+  partidos    Partido[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([estado])
+  @@index([fechaInicio])
+}
+
+// ─── Jugador ───────────────────────────────────────────────────────────────────
+
+model Jugador {
+  id              String    @id @default(cuid())
+  nombre          String
+  apellido        String
+  pais            String
+  ranking         Int?
+  bio             String?
+  fotoUrl         String?
+  partidosComoJ1  Partido[] @relation("PartidoJ1")
+  partidosComoJ2  Partido[] @relation("PartidoJ2")
+  partidosGanados Partido[] @relation("PartidoWinner")
+  fotos           Foto[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([pais])
+  @@index([ranking])
+}
+
+// ─── Partido ───────────────────────────────────────────────────────────────────
+
+model Partido {
+  id              String   @id @default(cuid())
+  campeonatoId    String
+  jugador1Id      String
+  jugador2Id      String
+  ganadorId       String?
+  // Free-form score string ("6-4 6-3 7-5"); no structured validation this iter.
+  marcador        String?
+  bracketPosition Int
+  // Allowed values: R128 | R64 | R32 | R16 | QF | SF | F (app-layer)
+  ronda           String
+  fecha           DateTime?
+  campeonato      Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
+  jugador1        Jugador    @relation("PartidoJ1",     fields: [jugador1Id], references: [id])
+  jugador2        Jugador    @relation("PartidoJ2",     fields: [jugador2Id], references: [id])
+  ganador         Jugador?   @relation("PartidoWinner", fields: [ganadorId],   references: [id])
+  fotos           Foto[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([campeonatoId, bracketPosition])
+  @@index([campeonatoId, ronda])
+  @@index([fecha])
+}
+
+// ─── Foto ──────────────────────────────────────────────────────────────────────
+// XOR invariant (exactly one of jugadorId / partidoId set) is enforced in the
+// app-layer validator (PR 4). SQLite has no CHECK constraints to enforce it
+// at the DB level.
+
+model Foto {
+  id         String   @id @default(cuid())
+  url        String
+  // Allowed values: JUGADOR | PARTIDO (app-layer)
+  context    String
+  jugadorId  String?
+  partidoId  String?
+  caption    String?
+  jugador    Jugador?  @relation(fields: [jugadorId], references: [id], onDelete: Cascade)
+  partido    Partido?  @relation(fields: [partidoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([jugadorId])
+  @@index([partidoId])
+  @@index([context])
+}

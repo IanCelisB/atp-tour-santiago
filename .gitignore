@@ -43,7 +43,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# prisma local sqlite (kept for reference even though we use postgres)
+# prisma local sqlite database (gitignored — see .env.example for DATABASE_URL)
 /prisma/dev.db*
 
 # uploaded photos (local storage only — see spec REQ-F-6)
