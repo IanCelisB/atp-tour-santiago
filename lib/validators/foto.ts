@@ -45,22 +45,19 @@ const partidoFoto = z.object({
   caption: z.string().max(500).optional(),
 });
 
-export const createFotoSchema = z
-  .discriminatedUnion('context', [jugadorFoto, partidoFoto])
-  .refine(
-    (data) => {
-      // Belt-and-braces XOR check: when context=JUGADOR, partidoId must be
-      // null/undefined; when context=PARTIDO, jugadorId must be null/undefined.
-      if (data.context === 'JUGADOR') {
-        return data.jugadorId != null && data.partidoId == null;
-      }
-      return data.partidoId != null && data.jugadorId == null;
-    },
-    {
-      message:
-        'Exactly one of jugadorId or partidoId must be set, and it must match the context',
-    },
-  );
+export const createFotoSchema = z.discriminatedUnion('context', [jugadorFoto, partidoFoto]).refine(
+  (data) => {
+    // Belt-and-braces XOR check: when context=JUGADOR, partidoId must be
+    // null/undefined; when context=PARTIDO, jugadorId must be null/undefined.
+    if (data.context === 'JUGADOR') {
+      return data.jugadorId != null && data.partidoId == null;
+    }
+    return data.partidoId != null && data.jugadorId == null;
+  },
+  {
+    message: 'Exactly one of jugadorId or partidoId must be set, and it must match the context',
+  },
+);
 
 export type CreateFotoInput = z.input<typeof createFotoSchema>;
 export type CreateFotoData = z.output<typeof createFotoSchema>;

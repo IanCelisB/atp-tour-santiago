@@ -128,9 +128,7 @@ describe('lib/domain/bracket', () => {
       const r32 = matches.filter((m) => m.ronda === 'R32');
       // Find the R32 match for each top seed and confirm the opponent.
       const r32For = (seed: number) =>
-        r32.find(
-          (m) => m.jugador1Id === `jug-${seed}` || m.jugador2Id === `jug-${seed}`,
-        )!;
+        r32.find((m) => m.jugador1Id === `jug-${seed}` || m.jugador2Id === `jug-${seed}`)!;
       expect(pairFromMatch(r32For(1))).toEqual(['jug-1', 'jug-8']);
       expect(pairFromMatch(r32For(2))).toEqual(['jug-2', 'jug-7']);
       expect(pairFromMatch(r32For(3))).toEqual(['jug-3', 'jug-6']);
@@ -194,10 +192,7 @@ describe('lib/domain/bracket', () => {
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 /** Returns the index of the SF match (0 or 1) that contains the given seed. */
-function findSemifinalForSeed(
-  matches: ReturnType<typeof generateBracket>,
-  seed: number,
-): number {
+function findSemifinalForSeed(matches: ReturnType<typeof generateBracket>, seed: number): number {
   // Walk the draw: find the R32 match with seed, trace its "winner" slot
   // to the SF, return the index of that SF in the matches list.
   const playerId = `jug-${seed}`;
@@ -219,10 +214,7 @@ function findSemifinalForSeed(
 }
 
 /** Returns the quarter (R32 match index) that the given seed lands in. */
-function findQuarterForSeed(
-  matches: ReturnType<typeof generateBracket>,
-  seed: number,
-): number {
+function findQuarterForSeed(matches: ReturnType<typeof generateBracket>, seed: number): number {
   const playerId = `jug-${seed}`;
   const r32 = matches.find(
     (m) => m.ronda === 'R32' && (m.jugador1Id === playerId || m.jugador2Id === playerId),

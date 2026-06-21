@@ -15,12 +15,7 @@ import { slugify } from '@/lib/slugify';
  * correct URL.
  */
 
-export const CAMPEONATO_ESTADOS = [
-  'PROGRAMADO',
-  'EN_CURSO',
-  'FINALIZADO',
-  'CANCELADO',
-] as const;
+export const CAMPEONATO_ESTADOS = ['PROGRAMADO', 'EN_CURSO', 'FINALIZADO', 'CANCELADO'] as const;
 
 export const campeonatoEstadoSchema = z.enum(CAMPEONATO_ESTADOS);
 

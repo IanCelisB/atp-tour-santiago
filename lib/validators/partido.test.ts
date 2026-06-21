@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createPartidoSchema,
-  PARTIDO_RONDAS,
-  type CreatePartidoInput,
-} from './partido';
+import { createPartidoSchema, PARTIDO_RONDAS, type CreatePartidoInput } from './partido';
 
 /**
  * Partido validator tests (spec REQ-M-1..M-5, M7; OQ-3).
@@ -190,22 +186,20 @@ describe('lib/validators/partido', () => {
 
   describe('marcador is free-form String (OQ-3, M7)', () => {
     it('accepts standard tennis score', () => {
-      expect(
-        createPartidoSchema.safeParse({ ...validPartido, marcador: '6-4 6-3' }).success,
-      ).toBe(true);
+      expect(createPartidoSchema.safeParse({ ...validPartido, marcador: '6-4 6-3' }).success).toBe(
+        true,
+      );
     });
 
     it('accepts arbitrary string as marcador (no structured validation this iter)', () => {
       // M7 + OQ-3: free-form; no parsing into sets.
-      expect(
-        createPartidoSchema.safeParse({ ...validPartido, marcador: 'RET' }).success,
-      ).toBe(true);
+      expect(createPartidoSchema.safeParse({ ...validPartido, marcador: 'RET' }).success).toBe(
+        true,
+      );
     });
 
     it('rejects empty marcador', () => {
-      expect(
-        createPartidoSchema.safeParse({ ...validPartido, marcador: '' }).success,
-      ).toBe(false);
+      expect(createPartidoSchema.safeParse({ ...validPartido, marcador: '' }).success).toBe(false);
     });
   });
 });
