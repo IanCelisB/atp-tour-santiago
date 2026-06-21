@@ -1,0 +1,25 @@
+# Build output
+.next/
+out/
+build/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Dependencies
+node_modules/
+
+# Auto-generated lockfiles (Prettier reformats them and creates churn)
+pnpm-lock.yaml
+
+# Environment templates
+.env*
+!.env.example
+
+# Prisma generated client
+prisma/generated/
+
+# Local uploads
+uploads/
