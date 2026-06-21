@@ -13,7 +13,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset --force",
+    "db:studio": "prisma studio",
+    "db:validate": "prisma validate"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",
