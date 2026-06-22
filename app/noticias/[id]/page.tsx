@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { deleteNoticia } from "../actions";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,8 @@ export default async function NoticiaDetailPage({
   if (!noticia) {
     notFound();
   }
+
+  const admin = await isAdmin();
 
   async function handleDelete() {
     "use server";
@@ -98,24 +101,26 @@ export default async function NoticiaDetailPage({
         </article>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex gap-4">
-          <Link
-            href={`/noticias/${id}/editar`}
-            className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
-          >
-            <Pencil className="h-4 w-4" />
-            Editar
-          </Link>
-          <form action={handleDelete}>
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+        {admin && (
+          <div className="mt-8 flex gap-4">
+            <Link
+              href={`/noticias/${id}/editar`}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
             >
-              <Trash2 className="h-4 w-4" />
-              Eliminar
-            </button>
-          </form>
-        </div>
+              <Pencil className="h-4 w-4" />
+              Editar
+            </Link>
+            <form action={handleDelete}>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </main>
   );

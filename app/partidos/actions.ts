@@ -7,6 +7,7 @@ import {
   updatePartidoAction,
   deletePartidoAction,
 } from "@/lib/actions/partido";
+import { requireAdmin } from "@/lib/auth/session";
 
 /**
  * Server Actions for Partidos CRUD.
@@ -16,6 +17,12 @@ import {
  */
 
 export async function createPartido(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     campeonatoId: formData.get("campeonatoId"),
     jugador1Id: formData.get("jugador1Id"),
@@ -39,6 +46,12 @@ export async function createPartido(formData: FormData) {
 }
 
 export async function updatePartido(id: string, formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     id,
     campeonatoId: formData.get("campeonatoId"),
@@ -64,6 +77,12 @@ export async function updatePartido(id: string, formData: FormData) {
 }
 
 export async function deletePartido(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const result = await deletePartidoAction(prisma, id);
 
   if (result.success) {

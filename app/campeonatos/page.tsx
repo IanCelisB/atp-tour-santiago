@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,12 @@ function formatDate(date: Date): string {
 }
 
 export default async function CampeonatosPage() {
-  const campeonatos = await prisma.campeonato.findMany({
-    orderBy: { fechaInicio: "desc" },
-  });
+  const [campeonatos, admin] = await Promise.all([
+    prisma.campeonato.findMany({
+      orderBy: { fechaInicio: "desc" },
+    }),
+    isAdmin(),
+  ]);
 
   return (
     <main className="flex min-h-screen flex-col bg-black px-6 py-24 font-sans text-zinc-50">
@@ -37,12 +41,14 @@ export default async function CampeonatosPage() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Campeonatos
           </h1>
-          <Link
-            href="/campeonatos/nuevo"
-            className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
-          >
-            + Nuevo Campeonato
-          </Link>
+          {admin && (
+            <Link
+              href="/campeonatos/nuevo"
+              className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+            >
+              + Nuevo Campeonato
+            </Link>
+          )}
         </div>
 
         {campeonatos.length === 0 ? (
@@ -50,12 +56,14 @@ export default async function CampeonatosPage() {
             <p className="text-lg text-zinc-400">
               No hay campeonatos registrados.
             </p>
-            <Link
-              href="/campeonatos/nuevo"
-              className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
-            >
-              Crear el primero →
-            </Link>
+            {admin && (
+              <Link
+                href="/campeonatos/nuevo"
+                className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
+              >
+                Crear el primero →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

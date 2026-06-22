@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -28,19 +29,22 @@ function formatDate(date: Date): string {
 }
 
 export default async function PartidosPage() {
-  const campeonatos = await prisma.campeonato.findMany({
-    include: {
-      partidos: {
-        include: {
-          jugador1: true,
-          jugador2: true,
-          ganador: true,
+  const [campeonatos, admin] = await Promise.all([
+    prisma.campeonato.findMany({
+      include: {
+        partidos: {
+          include: {
+            jugador1: true,
+            jugador2: true,
+            ganador: true,
+          },
+          orderBy: { bracketPosition: "asc" },
         },
-        orderBy: { bracketPosition: "asc" },
       },
-    },
-    orderBy: { fechaInicio: "desc" },
-  });
+      orderBy: { fechaInicio: "desc" },
+    }),
+    isAdmin(),
+  ]);
 
   const totalPartidos = campeonatos.reduce(
     (sum, c) => sum + c.partidos.length,
@@ -54,12 +58,14 @@ export default async function PartidosPage() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Partidos
           </h1>
-          <Link
-            href="/partidos/nuevo"
-            className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
-          >
-            + Nuevo Partido
-          </Link>
+          {admin && (
+            <Link
+              href="/partidos/nuevo"
+              className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+            >
+              + Nuevo Partido
+            </Link>
+          )}
         </div>
 
         {totalPartidos === 0 ? (
@@ -67,12 +73,14 @@ export default async function PartidosPage() {
             <p className="text-lg text-zinc-400">
               No hay partidos registrados.
             </p>
-            <Link
-              href="/partidos/nuevo"
-              className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
-            >
-              Crear el primero →
-            </Link>
+            {admin && (
+              <Link
+                href="/partidos/nuevo"
+                className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
+              >
+                Crear el primero →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-10">

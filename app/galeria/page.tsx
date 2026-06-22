@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Image, Play } from "lucide-react";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,12 @@ export const dynamic = "force-dynamic";
  */
 
 export default async function GaleriaPage() {
-  const items = await prisma.galleryItem.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const [items, admin] = await Promise.all([
+    prisma.galleryItem.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
+    isAdmin(),
+  ]);
 
   return (
     <main className="flex min-h-screen flex-col bg-black px-6 py-24 font-sans text-zinc-50">
@@ -23,12 +27,14 @@ export default async function GaleriaPage() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Galería
           </h1>
-          <Link
-            href="/galeria/nuevo"
-            className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-500"
-          >
-            + Agregar a Galería
-          </Link>
+          {admin && (
+            <Link
+              href="/galeria/nuevo"
+              className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+            >
+              + Agregar a Galería
+            </Link>
+          )}
         </div>
 
         {items.length === 0 ? (
@@ -37,12 +43,14 @@ export default async function GaleriaPage() {
             <p className="text-lg text-zinc-400">
               La galería está vacía.
             </p>
-            <Link
-              href="/galeria/nuevo"
-              className="text-sm font-medium text-purple-500 transition-colors hover:text-purple-400"
-            >
-              Agregar el primer elemento →
-            </Link>
+            {admin && (
+              <Link
+                href="/galeria/nuevo"
+                className="text-sm font-medium text-purple-500 transition-colors hover:text-purple-400"
+              >
+                Agregar el primer elemento →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">

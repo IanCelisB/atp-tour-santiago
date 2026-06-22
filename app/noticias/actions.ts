@@ -7,6 +7,7 @@ import {
   updateNoticiaAction,
   deleteNoticiaAction,
 } from "@/lib/actions/noticia";
+import { requireAdmin } from "@/lib/auth/session";
 
 /**
  * Server Actions for Noticias CRUD.
@@ -16,6 +17,12 @@ import {
  */
 
 export async function createNoticia(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     titulo: formData.get("titulo"),
     resumen: formData.get("resumen"),
@@ -36,6 +43,12 @@ export async function createNoticia(formData: FormData) {
 }
 
 export async function updateNoticia(id: string, formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     titulo: formData.get("titulo"),
     resumen: formData.get("resumen"),
@@ -57,6 +70,12 @@ export async function updateNoticia(id: string, formData: FormData) {
 }
 
 export async function deleteNoticia(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const result = await deleteNoticiaAction(prisma, id);
 
   if (result.success) {

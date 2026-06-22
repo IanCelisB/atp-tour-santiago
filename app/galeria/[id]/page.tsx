@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { deleteGalleryItem } from "../actions";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,8 @@ export default async function GaleriaDetailPage({
   if (!item) {
     notFound();
   }
+
+  const admin = await isAdmin();
 
   async function handleDelete() {
     "use server";
@@ -95,17 +98,19 @@ export default async function GaleriaDetailPage({
           </span>
         </div>
 
-        <div className="mt-8">
-          <form action={handleDelete}>
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
-            >
-              <Trash2 className="h-4 w-4" />
-              Eliminar
-            </button>
-          </form>
-        </div>
+        {admin && (
+          <div className="mt-8">
+            <form action={handleDelete}>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </main>
   );

@@ -7,15 +7,22 @@ import {
   updateCampeonatoAction,
   deleteCampeonatoAction,
 } from "@/lib/actions/campeonato";
+import { requireAdmin } from "@/lib/auth/session";
 
 /**
  * Server Actions for Campeonatos CRUD.
  *
  * Thin wrappers that inject the production Prisma singleton
  * and revalidate the cache after mutations.
+ * Admin-only: all mutations require admin role.
  */
 
 export async function createCampeonato(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
   const input: Record<string, unknown> = {
     nombre: formData.get("nombre"),
     fechaInicio: formData.get("fechaInicio")
@@ -44,6 +51,12 @@ export async function createCampeonato(formData: FormData) {
 }
 
 export async function updateCampeonato(id: string, formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     id,
     nombre: formData.get("nombre"),
@@ -74,6 +87,12 @@ export async function updateCampeonato(id: string, formData: FormData) {
 }
 
 export async function deleteCampeonato(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const result = await deleteCampeonatoAction(prisma, id);
 
   if (result.success) {

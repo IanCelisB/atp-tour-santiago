@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createGalleryItemAction, deleteGalleryItemAction } from "@/lib/actions/gallery";
+import { requireAdmin } from "@/lib/auth/session";
 
 /**
  * Server Actions for Galería CRUD.
@@ -12,6 +13,12 @@ import { createGalleryItemAction, deleteGalleryItemAction } from "@/lib/actions/
  */
 
 export async function createGalleryItem(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     titulo: formData.get("titulo") || undefined,
     descripcion: formData.get("descripcion") || undefined,
@@ -30,6 +37,12 @@ export async function createGalleryItem(formData: FormData) {
 }
 
 export async function deleteGalleryItem(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const result = await deleteGalleryItemAction(prisma, id);
 
   if (result.success) {

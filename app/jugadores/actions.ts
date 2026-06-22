@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createJugadorAction, updateJugadorAction, deleteJugadorAction } from "@/lib/actions/jugador";
 import { deleteImageFile } from "@/lib/image-cleanup";
+import { requireAdmin } from "@/lib/auth/session";
 
 /**
  * Server Actions for Jugadores CRUD.
@@ -15,6 +16,12 @@ import { deleteImageFile } from "@/lib/image-cleanup";
  */
 
 export async function createJugador(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const input: Record<string, unknown> = {
     nombre: formData.get("nombre"),
     apellido: formData.get("apellido"),
@@ -41,6 +48,12 @@ export async function createJugador(formData: FormData) {
 }
 
 export async function updateJugador(id: string, formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   const newFotoUrl = formData.get("fotoUrl") as string | null;
 
   // Fetch existing player to check for old photo
@@ -81,6 +94,12 @@ export async function updateJugador(id: string, formData: FormData) {
 }
 
 export async function deleteJugador(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: "Forbidden: admin role required" } as const;
+  }
+
   // Fetch player to get photo URL before deletion
   const jugador = await prisma.jugador.findUnique({
     where: { id },

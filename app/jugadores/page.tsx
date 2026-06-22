@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,12 @@ export const dynamic = "force-dynamic";
  * (or initials avatar) and links to the player detail.
  */
 export default async function JugadoresPage() {
-  const jugadores = await prisma.jugador.findMany({
-    orderBy: { ranking: { sort: "asc", nulls: "last" } },
-  });
+  const [jugadores, admin] = await Promise.all([
+    prisma.jugador.findMany({
+      orderBy: { ranking: { sort: "asc", nulls: "last" } },
+    }),
+    isAdmin(),
+  ]);
 
   return (
     <main className="flex min-h-screen flex-col bg-black px-6 py-24 font-sans text-zinc-50">
@@ -22,23 +26,27 @@ export default async function JugadoresPage() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Jugadores
           </h1>
-          <Link
-            href="/jugadores/nuevo"
-            className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
-          >
-            + Nuevo Jugador
-          </Link>
+          {admin && (
+            <Link
+              href="/jugadores/nuevo"
+              className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+            >
+              + Nuevo Jugador
+            </Link>
+          )}
         </div>
 
         {jugadores.length === 0 ? (
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-white/5 py-16 text-center">
             <p className="text-lg text-zinc-400">No hay jugadores registrados.</p>
-            <Link
-              href="/jugadores/nuevo"
-              className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
-            >
-              Crear el primero →
-            </Link>
+            {admin && (
+              <Link
+                href="/jugadores/nuevo"
+                className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
+              >
+                Crear el primero →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

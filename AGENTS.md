@@ -185,7 +185,6 @@ await mem_context({ project: 'atptoursantiago' });
 The following are **deliberately deferred** beyond the `init-repo` change.
 Do not propose, design, or implement them unless the user reopens scope:
 
-- Authentication / authorization (NextAuth, Clerk, etc.)
 - Internationalization (i18n / next-intl)
 - Image upload Server Action (schema only this iteration)
 - Production database (Postgres + docker-compose)

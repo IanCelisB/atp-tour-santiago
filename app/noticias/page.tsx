@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Newspaper } from "lucide-react";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,12 @@ function formatDate(date: Date): string {
 }
 
 export default async function NoticiasPage() {
-  const noticias = await prisma.noticia.findMany({
-    orderBy: { fechaPublicacion: "desc" },
-  });
+  const [noticias, admin] = await Promise.all([
+    prisma.noticia.findMany({
+      orderBy: { fechaPublicacion: "desc" },
+    }),
+    isAdmin(),
+  ]);
 
   const destacada = noticias.find((n) => n.destacado);
   const restantes = noticias.filter((n) => n.id !== destacada?.id);
@@ -34,12 +38,14 @@ export default async function NoticiasPage() {
           <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Noticias
           </h1>
-          <Link
-            href="/noticias/nuevo"
-            className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-500"
-          >
-            + Nueva Noticia
-          </Link>
+          {admin && (
+            <Link
+              href="/noticias/nuevo"
+              className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+            >
+              + Nueva Noticia
+            </Link>
+          )}
         </div>
 
         {noticias.length === 0 ? (
@@ -48,12 +54,14 @@ export default async function NoticiasPage() {
             <p className="text-lg text-zinc-400">
               No hay noticias registradas.
             </p>
-            <Link
-              href="/noticias/nuevo"
-              className="text-sm font-medium text-purple-500 transition-colors hover:text-purple-400"
-            >
-              Crear la primera →
-            </Link>
+            {admin && (
+              <Link
+                href="/noticias/nuevo"
+                className="text-sm font-medium text-purple-500 transition-colors hover:text-purple-400"
+              >
+                Crear la primera →
+              </Link>
+            )}
           </div>
         ) : (
           <>

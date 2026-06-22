@@ -52,6 +52,10 @@ export async function cleanGalleryItemTable(): Promise<void> {
   await getTestPrisma().galleryItem.deleteMany();
 }
 
+export async function cleanUserTable(): Promise<void> {
+  await getTestPrisma().user.deleteMany();
+}
+
 export const TEST_DB_HOOKS = {
   beforeEach: async (): Promise<void> => {
     await cleanPartidoTable();
@@ -59,6 +63,7 @@ export const TEST_DB_HOOKS = {
     await cleanJugadorTable();
     await cleanNoticiaTable();
     await cleanGalleryItemTable();
+    await cleanUserTable();
   },
   afterAll: async (): Promise<void> => {
     if (client) {

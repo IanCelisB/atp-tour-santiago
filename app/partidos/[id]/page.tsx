@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { deletePartido } from "../actions";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,8 @@ export default async function PartidoDetailPage({
   if (!partido) {
     notFound();
   }
+
+  const admin = await isAdmin();
 
   async function handleDelete() {
     "use server";
@@ -165,22 +168,24 @@ export default async function PartidoDetailPage({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4">
-              <Link
-                href={`/partidos/${id}/editar`}
-                className="rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
-              >
-                Editar
-              </Link>
-              <form action={handleDelete}>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+            {admin && (
+              <div className="flex gap-4">
+                <Link
+                  href={`/partidos/${id}/editar`}
+                  className="rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
                 >
-                  Eliminar
-                </button>
-              </form>
-            </div>
+                  Editar
+                </Link>
+                <form action={handleDelete}>
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+                  >
+                    Eliminar
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
 
           {/* Metadata */}

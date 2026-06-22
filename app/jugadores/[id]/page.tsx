@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { RadarChart } from "@/components/RadarChart";
 import { deleteJugador } from "../actions";
+import { isAdmin } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,8 @@ export default async function JugadorDetailPage({
   if (!jugador) {
     notFound();
   }
+
+  const admin = await isAdmin();
 
   const stats = [
     { label: "RES", value: jugador.resistencia },
@@ -124,22 +127,24 @@ export default async function JugadorDetailPage({
             </div>
 
             {/* Action Buttons */}
-            <div className="mt-8 flex gap-4">
-              <Link
-                href={`/jugadores/${id}/editar`}
-                className="rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
-              >
-                Editar
-              </Link>
-              <form action={handleDelete}>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+            {admin && (
+              <div className="mt-8 flex gap-4">
+                <Link
+                  href={`/jugadores/${id}/editar`}
+                  className="rounded-xl bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
                 >
-                  Eliminar
-                </button>
-              </form>
-            </div>
+                  Editar
+                </Link>
+                <form action={handleDelete}>
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-red-500/20 px-5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+                  >
+                    Eliminar
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
 
           {/* Right: Radar Chart */}
