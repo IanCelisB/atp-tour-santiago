@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LoginForm from "./form";
+import { ErrorPopup } from "./ErrorPopup";
 import { getSession } from "@/lib/auth/session";
 import { isGoogleConfigured } from "@/lib/auth/google";
 
@@ -17,7 +18,14 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+  const errorCode = params.error;
+
   const session = await getSession();
   if (session.userId) {
     redirect("/");
@@ -31,6 +39,7 @@ export default async function LoginPage() {
         <h1 className="mb-10 text-4xl font-semibold tracking-tight sm:text-5xl">
           Iniciar Sesión
         </h1>
+        <ErrorPopup errorCode={errorCode ?? null} />
         <LoginForm />
 
         {googleEnabled && (

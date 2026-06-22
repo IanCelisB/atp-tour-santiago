@@ -3,10 +3,25 @@ import { OAuth2RequestError } from 'arctic';
 import { prisma } from '@/lib/db';
 import { getGoogleClient } from '@/lib/auth/google';
 import { getSession } from '@/lib/auth/session';
+import { getOrAssignFirstAdmin } from '@/lib/auth/first-admin';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
+
+  // Check for OAuth error FIRST — user may have cancelled or Google returned
+  // an error. Redirect to login with a friendly message instead of raw JSON.
+  const oauthError = url.searchParams.get('error');
+  if (oauthError) {
+    const code =
+      oauthError === 'access_denied'
+        ? 'google_cancelled'
+        : oauthError === 'invalid_request'
+          ? 'google_invalid'
+          : 'google_error';
+    return NextResponse.redirect(new URL(`/login?error=${code}`, request.url));
+  }
+
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
@@ -65,25 +80,14 @@ export async function GET(request: Request) {
     );
   }
 
-  // Find or create user
-  let user = await prisma.user.findUnique({
-    where: { email: userInfo.email },
-  });
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: userInfo.email,
-        passwordHash: '', // no password for OAuth users
-        role: 'view', // default to view role
-      },
-    });
-  }
+  // Find or create user (auto-promotes first user to admin)
+  const user = await getOrAssignFirstAdmin(prisma, userInfo.email);
 
   // Set session
   const session = await getSession();
   session.userId = user.id;
   session.email = user.email;
-  session.role = user.role as 'admin' | 'view';
+  session.role = user.role;
   await session.save();
 
   // Clear OAuth state cookies

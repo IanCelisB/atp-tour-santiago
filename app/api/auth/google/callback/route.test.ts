@@ -176,12 +176,12 @@ describe('app/api/auth/google/callback/route', () => {
     // Should redirect to home
     expect(response.status).toBe(307);
 
-    // User should be created in DB
+    // User should be created in DB (first user → admin via auto-promote)
     const user = await db.user.findUnique({
       where: { email: 'google-user@gmail.com' },
     });
     expect(user).not.toBeNull();
-    expect(user?.role).toBe('view');
+    expect(user?.role).toBe('admin');
     expect(user?.passwordHash).toBe(''); // No password for OAuth users
   });
 
@@ -310,5 +310,148 @@ describe('app/api/auth/google/callback/route', () => {
 
     const response = await GET(request);
     expect(response.status).toBe(400);
+  });
+
+  // --- Google cancel / OAuth error redirect tests ---
+
+  it('redirects to /login?error=google_cancelled when access_denied', async () => {
+    const { GET } = await import('./route');
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?error=access_denied&state=some-state',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(307);
+    const location = response.headers.get('location');
+    expect(location).toContain('/login?error=google_cancelled');
+  });
+
+  it('redirects to /login?error=google_invalid when invalid_request', async () => {
+    const { GET } = await import('./route');
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?error=invalid_request',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(307);
+    const location = response.headers.get('location');
+    expect(location).toContain('/login?error=google_invalid');
+  });
+
+  it('redirects to /login?error=google_error on other errors', async () => {
+    const { GET } = await import('./route');
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?error=server_error',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(307);
+    const location = response.headers.get('location');
+    expect(location).toContain('/login?error=google_error');
+  });
+
+  it('does not require state validation when error is present', async () => {
+    const { GET } = await import('./route');
+    // No cookies set, no state — but error param should still redirect
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?error=access_denied',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+
+    // Should redirect, NOT return 400
+    expect(response.status).toBe(307);
+    const location = response.headers.get('location');
+    expect(location).toContain('/login?error=google_cancelled');
+  });
+
+  // --- Auto-promote first user to admin tests ---
+
+  it('creates first user as admin when no admins exist', async () => {
+    const { GET } = await import('./route');
+    const db = getTestPrisma();
+
+    mockGetGoogleClient.mockReturnValue({
+      validateAuthorizationCode: vi.fn().mockResolvedValue({
+        accessToken: () => 'fake-access-token',
+      }),
+    });
+    mockFetch.mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          email: 'first-admin@gmail.com',
+          email_verified: true,
+          name: 'First Admin',
+        }),
+    });
+    mockCookies['google_oauth_state'] = 'test-state';
+    mockCookies['google_code_verifier'] = 'test-verifier';
+
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?code=valid-code&state=test-state',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+    expect(response.status).toBe(307);
+
+    // User should be created as admin (first user)
+    const user = await db.user.findUnique({
+      where: { email: 'first-admin@gmail.com' },
+    });
+    expect(user).not.toBeNull();
+    expect(user?.role).toBe('admin');
+  });
+
+  it('creates subsequent users as view when admin already exists', async () => {
+    const { GET } = await import('./route');
+    const db = getTestPrisma();
+
+    // Create an admin user first
+    await db.user.create({
+      data: {
+        email: 'existing-admin@gmail.com',
+        passwordHash: '',
+        role: 'admin',
+      },
+    });
+
+    mockGetGoogleClient.mockReturnValue({
+      validateAuthorizationCode: vi.fn().mockResolvedValue({
+        accessToken: () => 'fake-access-token',
+      }),
+    });
+    mockFetch.mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          email: 'second-user@gmail.com',
+          email_verified: true,
+          name: 'Second User',
+        }),
+    });
+    mockCookies['google_oauth_state'] = 'test-state';
+    mockCookies['google_code_verifier'] = 'test-verifier';
+
+    const url = new URL(
+      'http://localhost:3000/api/auth/google/callback?code=valid-code&state=test-state',
+    );
+    const request = new Request(url);
+
+    const response = await GET(request);
+    expect(response.status).toBe(307);
+
+    // New user should be created as view
+    const user = await db.user.findUnique({
+      where: { email: 'second-user@gmail.com' },
+    });
+    expect(user).not.toBeNull();
+    expect(user?.role).toBe('view');
   });
 });
