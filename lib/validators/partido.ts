@@ -12,18 +12,18 @@ import { z } from 'zod';
  *   - ronda: one of R128 | R64 | R32 | R16 | QF | SF | F.
  *   - marcador: optional free-form String per OQ-3 (no structured sets).
  *   - ganadorId invariant (M4.a-e):
- *       * status=COMPLETED → ganadorId required AND must be jugador1Id/jugador2Id
- *       * status≠COMPLETED → ganadorId must be null/undefined
- *   - status: optional, default SCHEDULED.
+ *       * status=FINALIZADO → ganadorId required AND must be jugador1Id/jugador2Id
+ *       * status≠FINALIZADO → ganadorId must be null/undefined
+ *   - status: optional, default PROGRAMADO.
  */
 
 export const PARTIDO_RONDAS = ['R128', 'R64', 'R32', 'R16', 'QF', 'SF', 'F'] as const;
 export const PARTIDO_STATUSES = [
-  'SCHEDULED',
-  'IN_PROGRESS',
-  'COMPLETED',
+  'PROGRAMADO',
+  'EN_CURSO',
+  'FINALIZADO',
   'WALKOVER',
-  'CANCELLED',
+  'CANCELADO',
 ] as const;
 
 export const partidoRondaSchema = z.enum(PARTIDO_RONDAS);
@@ -61,13 +61,13 @@ export const createPartidoSchema = z
   // M4.a-e: ganadorId invariant.
   .superRefine((data, ctx) => {
     const winnerSet = data.ganadorId != null;
-    const completed = data.status === 'COMPLETED';
+    const completed = data.status === 'FINALIZADO';
 
     if (completed && !winnerSet) {
       // M4.a: a completed match must have a winner.
       ctx.addIssue({
         code: 'custom',
-        message: 'ganadorId is required when status is COMPLETED',
+        message: 'ganadorId is required when status is FINALIZADO',
         path: ['ganadorId'],
       });
       return;
@@ -77,7 +77,7 @@ export const createPartidoSchema = z
       // M4.e: a winner cannot be set before the match completes.
       ctx.addIssue({
         code: 'custom',
-        message: 'ganadorId may only be set when status is COMPLETED',
+        message: 'ganadorId may only be set when status is FINALIZADO',
         path: ['ganadorId'],
       });
       return;
@@ -96,7 +96,7 @@ export const createPartidoSchema = z
   })
   .transform((data) => ({
     ...data,
-    status: data.status ?? 'SCHEDULED',
+    status: data.status ?? 'PROGRAMADO',
   }));
 
 export type CreatePartidoInput = z.input<typeof createPartidoSchema>;

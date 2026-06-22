@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { deleteCampeonato } from "../actions";
+import { CampeonatoBracket } from "@/components/CampeonatoBracket";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function CampeonatoDetailPage({
 
   const campeonato = await prisma.campeonato.findUnique({
     where: { id },
+    include: { ganador: { select: { nombre: true, apellido: true } } },
   });
 
   if (!campeonato) {
@@ -72,6 +74,15 @@ export default async function CampeonatoDetailPage({
           </div>
           <p className="mt-2 text-sm text-zinc-500">/{campeonato.slug}</p>
         </div>
+
+        {campeonato.ganador && (
+          <div className="mb-6 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+            <span className="text-2xl">🏆</span>
+            <span className="text-lg font-semibold text-amber-300">
+              {campeonato.ganador.nombre} {campeonato.ganador.apellido}
+            </span>
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Info */}
@@ -151,6 +162,17 @@ export default async function CampeonatoDetailPage({
               </div>
             </dl>
           </div>
+        </div>
+
+        <CampeonatoBracket campeonatoId={id} estado={campeonato.estado} />
+
+        <div className="mt-10">
+          <Link
+            href="/campeonatos"
+            className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400"
+          >
+            ← Volver a Campeonatos
+          </Link>
         </div>
       </div>
     </main>

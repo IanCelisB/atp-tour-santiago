@@ -106,14 +106,14 @@ describe('lib/validators/partido', () => {
   });
 
   describe('ganadorId invariant (M4.a-e)', () => {
-    it('accepts ganadorId=null when status=COMPLETED is NOT set (M4 base)', () => {
-      // Default status is SCHEDULED; ganadorId must be null/absent.
+    it('accepts ganadorId=null when status=FINALIZADO is NOT set (M4 base)', () => {
+      // Default status is PROGRAMADO; ganadorId must be null/absent.
       const result = createPartidoSchema.safeParse({ ...validPartido });
       expect(result.success).toBe(true);
     });
 
-    it('rejects ganadorId set without status=COMPLETED (M4.e)', () => {
-      // ganadorId present but status is still SCHEDULED → winner set too early.
+    it('rejects ganadorId set without status=FINALIZADO (M4.e)', () => {
+      // ganadorId present but status is still PROGRAMADO → winner set too early.
       const result = createPartidoSchema.safeParse({
         ...validPartido,
         ganadorId: 'jug-1',
@@ -121,45 +121,45 @@ describe('lib/validators/partido', () => {
       expect(result.success).toBe(false);
     });
 
-    it('rejects ganadorId=j1 when status=COMPLETED is NOT set (M4.e)', () => {
+    it('rejects ganadorId=j1 when status=FINALIZADO is NOT set (M4.e)', () => {
       const result = createPartidoSchema.safeParse({
         ...validPartido,
         ganadorId: 'jug-1',
-        status: 'IN_PROGRESS',
+        status: 'EN_CURSO',
       });
       expect(result.success).toBe(false);
     });
 
-    it('rejects ganadorId=j1 when status=COMPLETED and ganadorId is null (M4.a)', () => {
+    it('rejects ganadorId=j1 when status=FINALIZADO and ganadorId is null (M4.a)', () => {
       const result = createPartidoSchema.safeParse({
         ...validPartido,
-        status: 'COMPLETED',
+        status: 'FINALIZADO',
       });
       expect(result.success).toBe(false);
     });
 
-    it('rejects ganadorId=thirdParty (not j1/j2) when status=COMPLETED (M4.d)', () => {
+    it('rejects ganadorId=thirdParty (not j1/j2) when status=FINALIZADO (M4.d)', () => {
       const result = createPartidoSchema.safeParse({
         ...validPartido,
-        status: 'COMPLETED',
+        status: 'FINALIZADO',
         ganadorId: 'jug-third',
       });
       expect(result.success).toBe(false);
     });
 
-    it('accepts ganadorId=j1 when status=COMPLETED (M4.b)', () => {
+    it('accepts ganadorId=j1 when status=FINALIZADO (M4.b)', () => {
       const result = createPartidoSchema.safeParse({
         ...validPartido,
-        status: 'COMPLETED',
+        status: 'FINALIZADO',
         ganadorId: 'jug-1',
       });
       expect(result.success).toBe(true);
     });
 
-    it('accepts ganadorId=j2 when status=COMPLETED (M4.c)', () => {
+    it('accepts ganadorId=j2 when status=FINALIZADO (M4.c)', () => {
       const result = createPartidoSchema.safeParse({
         ...validPartido,
-        status: 'COMPLETED',
+        status: 'FINALIZADO',
         ganadorId: 'jug-2',
       });
       expect(result.success).toBe(true);

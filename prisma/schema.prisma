@@ -32,6 +32,8 @@ model Campeonato {
   categoria   String
   // Allowed values: PROGRAMADO | EN_CURSO | FINALIZADO | CANCELADO (app-layer)
   estado      String    @default("PROGRAMADO")
+  ganadorId   String?
+  ganador     Jugador?  @relation("CampeonatoWinner", fields: [ganadorId], references: [id])
   partidos    Partido[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -58,8 +60,9 @@ model Jugador {
   poder           Int       @default(50)
   partidosComoJ1  Partido[] @relation("PartidoJ1")
   partidosComoJ2  Partido[] @relation("PartidoJ2")
-  partidosGanados Partido[] @relation("PartidoWinner")
-  fotos           Foto[]
+  partidosGanados      Partido[]      @relation("PartidoWinner")
+  campeonatosGanados   Campeonato[]   @relation("CampeonatoWinner")
+  fotos                Foto[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -80,6 +83,8 @@ model Partido {
   bracketPosition Int
   // Allowed values: R128 | R64 | R32 | R16 | QF | SF | F (app-layer)
   ronda           String
+  // Allowed values: PROGRAMADO | EN_CURSO | FINALIZADO | WALKOVER | CANCELADO (app-layer)
+  status          String   @default("PROGRAMADO")
   fecha           DateTime?
   campeonato      Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
   jugador1        Jugador    @relation("PartidoJ1",     fields: [jugador1Id], references: [id])
