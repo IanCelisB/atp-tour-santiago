@@ -9,7 +9,7 @@ import path from "node:path";
  * accidental deletion of other files.
  */
 
-const ALLOWED_UPLOAD_DIRS = ["public/uploads/jugadores"];
+const ALLOWED_UPLOAD_DIRS = ["uploads/jugadores"] as const;
 
 /**
  * Delete an uploaded image file given its URL path.
@@ -17,14 +17,15 @@ const ALLOWED_UPLOAD_DIRS = ["public/uploads/jugadores"];
  * @param urlPath - The URL path like "/uploads/jugadores/uuid.webp"
  */
 export async function deleteImageFile(urlPath: string): Promise<void> {
-  // Convert URL path to filesystem path
-  // "/uploads/jugadores/uuid.webp" → "public/uploads/jugadores/uuid.webp"
-  const relativePath = urlPath.replace(/^\//, "");
-  const fullPath = path.join(relativePath);
+  // Normalize: collapse repeated slashes, drop the leading slash
+  const normalized = urlPath.replace(/\/+/g, "/").replace(/^\//, "");
 
   // Security: verify the path is within an allowed upload directory
-  const isAllowed = ALLOWED_UPLOAD_DIRS.some((dir) =>
-    fullPath.startsWith(dir)
+  // *after* path normalization (resolves ".."). The resolved path
+  // must start with one of the allowed prefixes.
+  const resolved = path.posix.normalize(normalized);
+  const isAllowed = ALLOWED_UPLOAD_DIRS.some(
+    (dir) => resolved === dir || resolved.startsWith(`${dir}/`),
   );
 
   if (!isAllowed) {
@@ -32,7 +33,7 @@ export async function deleteImageFile(urlPath: string): Promise<void> {
   }
 
   try {
-    await fs.unlink(fullPath);
+    await fs.unlink(resolved);
   } catch {
     // File may already be deleted or not exist — ignore
   }

@@ -9,12 +9,12 @@
  *   4. Start Next.js production server
  */
 
-const { execSync } = require('node:child_process');
-const { mkdirSync } = require('node:fs');
-const { dirname, resolve } = require('node:path');
+import { execSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 // Ensure we run from repo root regardless of where the script is invoked
-process.chdir(resolve(__dirname, '..'));
+process.chdir(resolve(import.meta.dirname, '..'));
 
 const databaseUrl = process.env.DATABASE_URL ?? 'file:./prisma/dev.db';
 

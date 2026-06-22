@@ -39,7 +39,7 @@ export default async function LoginPage({
         <h1 className="mb-10 text-4xl font-semibold tracking-tight sm:text-5xl">
           Iniciar Sesión
         </h1>
-        <ErrorPopup errorCode={errorCode ?? null} />
+        <ErrorPopup key={errorCode ?? "none"} errorCode={errorCode ?? null} />
         <LoginForm />
 
         {googleEnabled && (

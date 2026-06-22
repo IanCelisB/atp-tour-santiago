@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getRanking } from "@/lib/domain/calculate-ranking";
 
@@ -79,9 +80,9 @@ export default async function RankingPage() {
         </div>
 
         <div className="mt-10">
-          <a href="/" className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400">
+          <Link href="/" className="text-sm font-medium text-blue-500 transition-colors hover:text-blue-400">
             ← Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     </main>

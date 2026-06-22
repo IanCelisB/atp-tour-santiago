@@ -1,10 +1,24 @@
 import { cookies } from 'next/headers';
 import { OAuth2RequestError } from 'arctic';
 import { prisma } from '@/lib/db';
-import { getGoogleClient } from '@/lib/auth/google';
+import { getGoogleClient, getGoogleBaseUrl } from '@/lib/auth/google';
 import { getSession } from '@/lib/auth/session';
 import { getOrAssignFirstAdmin } from '@/lib/auth/first-admin';
 import { NextResponse } from 'next/server';
+
+/**
+ * Build a same-origin redirect URL anchored to our configured base URL.
+ *
+ * Why this exists: building `new URL(path, request.url)` trusts the
+ * incoming request's origin. If an attacker crafts a request with a
+ * manipulated Host header (or the request is replayed through a
+ * misconfigured proxy), the redirect could point at an external
+ * domain. Anchoring to `getGoogleBaseUrl()` keeps the destination
+ * on the same origin regardless of the incoming request.
+ */
+function safeRedirect(path: string): URL {
+  return new URL(path, getGoogleBaseUrl());
+}
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -19,7 +33,7 @@ export async function GET(request: Request) {
         : oauthError === 'invalid_request'
           ? 'google_invalid'
           : 'google_error';
-    return NextResponse.redirect(new URL(`/login?error=${code}`, request.url));
+    return NextResponse.redirect(safeRedirect(`/login?error=${code}`));
   }
 
   const code = url.searchParams.get('code');
@@ -94,6 +108,6 @@ export async function GET(request: Request) {
   cookieStore.delete('google_oauth_state');
   cookieStore.delete('google_code_verifier');
 
-  // Redirect to home
-  return NextResponse.redirect(new URL('/', url));
+  // Redirect to home (same-origin, anchored to configured base URL)
+  return NextResponse.redirect(safeRedirect('/'));
 }

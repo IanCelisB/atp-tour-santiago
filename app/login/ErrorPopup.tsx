@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, X } from "lucide-react";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -11,18 +11,21 @@ const ERROR_MESSAGES: Record<string, string> = {
     "Google login no está configurado. Contacta al administrador.",
 };
 
+const AUTO_HIDE_MS = 8000;
+
 export function ErrorPopup({ errorCode }: { errorCode: string | null }) {
-  const [visible, setVisible] = useState(!!errorCode);
+  // The parent passes `key={errorCode}` so a new errorCode remounts the
+  // component — no need to reset state across errorCodes here. The only
+  // local state is "did the user manually dismiss this popup".
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (errorCode) {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 8000);
-      return () => clearTimeout(timer);
-    }
+    if (!errorCode) return;
+    const timer = setTimeout(() => setHidden(true), AUTO_HIDE_MS);
+    return () => clearTimeout(timer);
   }, [errorCode]);
 
-  if (!visible || !errorCode) return null;
+  if (!errorCode || hidden) return null;
 
   const message =
     ERROR_MESSAGES[errorCode] ?? "Error de autenticación. Intenta de nuevo.";
@@ -33,7 +36,7 @@ export function ErrorPopup({ errorCode }: { errorCode: string | null }) {
       <p className="flex-1">{message}</p>
       <button
         type="button"
-        onClick={() => setVisible(false)}
+        onClick={() => setHidden(true)}
         className="text-red-400 transition-colors hover:text-red-300"
         aria-label="Cerrar"
       >

@@ -25,6 +25,7 @@ vi.mock('next/headers', () => ({
 const mockGetGoogleClient = vi.fn();
 vi.mock('@/lib/auth/google', () => ({
   getGoogleClient: (...args: unknown[]) => mockGetGoogleClient(...args),
+  getGoogleBaseUrl: () => 'http://localhost:3000',
 }));
 
 // Mock @/lib/db to use the test Prisma client
