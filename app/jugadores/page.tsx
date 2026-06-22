@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Jugador } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth/session";
 
@@ -50,7 +51,7 @@ export default async function JugadoresPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {jugadores.map((j) => {
+            {jugadores.map((j: Jugador) => {
               const initials = `${j.nombre.charAt(0)}${j.apellido.charAt(0)}`.toUpperCase();
               return (
                 <Link

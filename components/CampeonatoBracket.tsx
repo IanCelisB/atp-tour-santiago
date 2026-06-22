@@ -1,4 +1,13 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+
+type PartidoConJugadores = Prisma.PartidoGetPayload<{
+  include: {
+    jugador1: true;
+    jugador2: true;
+    ganador: true;
+  };
+}>;
 
 const RONDA_LABELS: Record<string, string> = {
   F: "Final",
@@ -76,7 +85,7 @@ export async function CampeonatoBracket({
             </h3>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {rondaPartidos.map((partido) => (
+              {rondaPartidos.map((partido: PartidoConJugadores) => (
                 <div
                   key={partido.id}
                   className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5"

@@ -1,6 +1,19 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth/session";
+
+type CampeonatoConPartidos = Prisma.CampeonatoGetPayload<{
+  include: {
+    partidos: {
+      include: {
+        jugador1: true;
+        jugador2: true;
+        ganador: true;
+      };
+    };
+  };
+}>;
 
 export const dynamic = "force-dynamic";
 
@@ -29,22 +42,20 @@ function formatDate(date: Date): string {
 }
 
 export default async function PartidosPage() {
-  const [campeonatos, admin] = await Promise.all([
-    prisma.campeonato.findMany({
-      include: {
-        partidos: {
-          include: {
-            jugador1: true,
-            jugador2: true,
-            ganador: true,
-          },
-          orderBy: { bracketPosition: "asc" },
+  const campeonatos = await prisma.campeonato.findMany({
+    include: {
+      partidos: {
+        include: {
+          jugador1: true,
+          jugador2: true,
+          ganador: true,
         },
+        orderBy: { bracketPosition: "asc" },
       },
-      orderBy: { fechaInicio: "desc" },
-    }),
-    isAdmin(),
-  ]);
+    },
+    orderBy: { fechaInicio: "desc" },
+  });
+  const admin = await isAdmin();
 
   const totalPartidos = campeonatos.reduce(
     (sum, c) => sum + c.partidos.length,
@@ -85,7 +96,7 @@ export default async function PartidosPage() {
         ) : (
           <div className="space-y-10">
             {campeonatos.map(
-              (c) =>
+              (c: CampeonatoConPartidos) =>
                 c.partidos.length > 0 && (
                   <section key={c.id}>
                     <h2 className="mb-4 text-xl font-semibold text-white">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { GalleryItem } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { Image, Play } from "lucide-react";
 import { isAdmin } from "@/lib/auth/session";
@@ -54,7 +55,7 @@ export default async function GaleriaPage() {
           </div>
         ) : (
           <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
-            {items.map((item) => (
+            {items.map((item: GalleryItem) => (
               <Link
                 key={item.id}
                 href={`/galeria/${item.id}`}

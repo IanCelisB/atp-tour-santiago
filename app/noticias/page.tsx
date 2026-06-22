@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Noticia } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { Newspaper } from "lucide-react";
 import { isAdmin } from "@/lib/auth/session";
@@ -109,7 +110,7 @@ export default async function NoticiasPage() {
             {/* Grid of remaining articles */}
             {restantes.length > 0 && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {restantes.map((n) => (
+                {restantes.map((n: Noticia) => (
                   <Link
                     key={n.id}
                     href={`/noticias/${n.id}`}

@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon # closest to Chile/South America
     branch: main
-    buildCommand: pnpm install --frozen-lockfile && pnpm db:generate && pnpm prisma migrate deploy && pnpm build
+    buildCommand: "pnpm install --frozen-lockfile && pnpm db:generate && pnpm prisma migrate deploy && pnpm build"
     startCommand: node scripts/start.js
     healthCheckPath: /
     disk:

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Campeonato } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth/session";
 
@@ -67,7 +68,7 @@ export default async function CampeonatosPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {campeonatos.map((c) => (
+            {campeonatos.map((c: Campeonato) => (
               <Link
                 key={c.id}
                 href={`/campeonatos/${c.id}`}
