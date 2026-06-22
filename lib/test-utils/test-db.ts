@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
 import { afterAll, beforeEach } from 'vitest';
 
 /**
@@ -26,7 +26,7 @@ let client: PrismaClient | null = null;
 export function getTestPrisma(): PrismaClient {
   if (client) return client;
   client = new PrismaClient({
-    adapter: new PrismaBetterSqlite3({ url: TEST_DATABASE_URL }),
+    adapter: new PrismaLibSql({ url: TEST_DATABASE_URL }),
     log: ['error'],
   });
   return client;
@@ -40,10 +40,20 @@ export async function cleanJugadorTable(): Promise<void> {
   await getTestPrisma().jugador.deleteMany();
 }
 
+export async function cleanNoticiaTable(): Promise<void> {
+  await getTestPrisma().noticia.deleteMany();
+}
+
+export async function cleanGalleryItemTable(): Promise<void> {
+  await getTestPrisma().galleryItem.deleteMany();
+}
+
 export const TEST_DB_HOOKS = {
   beforeEach: async (): Promise<void> => {
     await cleanCampeonatoTable();
     await cleanJugadorTable();
+    await cleanNoticiaTable();
+    await cleanGalleryItemTable();
   },
   afterAll: async (): Promise<void> => {
     if (client) {
@@ -65,5 +75,19 @@ export function setupJugadorCleanup(): void {
   beforeEach(TEST_DB_HOOKS.beforeEach);
 }
 export function teardownJugadorClient(): void {
+  afterAll(TEST_DB_HOOKS.afterAll);
+}
+
+export function setupNoticiaCleanup(): void {
+  beforeEach(TEST_DB_HOOKS.beforeEach);
+}
+export function teardownNoticiaClient(): void {
+  afterAll(TEST_DB_HOOKS.afterAll);
+}
+
+export function setupGalleryCleanup(): void {
+  beforeEach(TEST_DB_HOOKS.beforeEach);
+}
+export function teardownGalleryClient(): void {
   afterAll(TEST_DB_HOOKS.afterAll);
 }
