@@ -1,4 +1,4 @@
-import { Activity, Newspaper, Trophy, Users, type LucideIcon } from 'lucide-react';
+import { Activity, Image, Newspaper, TrendingUp, Trophy, Users, type LucideIcon } from 'lucide-react';
 
 /**
  * Color tokens supported by `components/NavItem.tsx`.
@@ -54,6 +54,20 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     description: 'Últimas novedades del circuito ATP.',
     icon: Newspaper,
     href: '/noticias',
+    color: 'purple',
+  },
+  {
+    title: 'Ranking ATP',
+    description: 'Clasificación mundial de tenistas.',
+    icon: TrendingUp,
+    href: '/ranking',
+    color: 'green',
+  },
+  {
+    title: 'Galería',
+    description: 'Fotos y videos del torneo.',
+    icon: Image,
+    href: '/galeria',
     color: 'purple',
   },
 ] as const;

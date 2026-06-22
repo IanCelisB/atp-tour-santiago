@@ -1,54 +1,46 @@
 import { HomeMenu } from "@/components/HomeMenu";
+import { CampeonatoTimeline } from "@/components/CampeonatoTimeline";
 
 /**
- * Homepage — dark hero with a 2x2 navigation grid.
+ * Homepage — Linear.app inspired redesign.
  *
- * The H1 "ATP Tour Santiago" is intentionally preserved here because the
- * E2E smoke test (e2e/smoke.spec.ts) asserts it is visible; renaming it
- * or restyling it would break that contract.
+ * Sections:
+ *  1. Hero — gradient title + subtitle
+ *  2. Nav grid — existing HomeMenu cards
+ *  3. Timeline — last 5 completed campeonatos with winners
  *
- * The body of the page delegates the navigation cards to
- * `components/HomeMenu.tsx`, which reads from `lib/menu-config.ts` —
- * that trio is the single source of truth for which sections exist.
+ * The H1 "ATP Tour Santiago" is preserved for the E2E smoke test
+ * (e2e/smoke.spec.ts) which asserts it is visible.
  */
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-black px-6 py-24 font-sans text-zinc-50">
-      <div className="flex w-full max-w-5xl flex-col items-center gap-10 text-center">
-        <div className="flex max-w-2xl flex-col items-center gap-4">
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+      <div className="flex w-full max-w-5xl flex-col items-center gap-16">
+        {/* ── Hero ──────────────────────────────────────────────── */}
+        <section className="flex max-w-3xl flex-col items-center gap-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-zinc-400 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Temporada 2026
+          </div>
+
+          <h1 className="bg-gradient-to-br from-white via-white to-zinc-400 bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-6xl">
             ATP Tour Santiago
           </h1>
-        </div>
 
-        {/* Descripción */}
-        <section className="mt-8 max-w-3xl text-left">
-          <h2 className="mb-4 text-2xl font-semibold text-white">
-            ¿Qué es ATP Tour Santiago?
-          </h2>
-          <div className="space-y-4 text-base leading-7 text-zinc-300">
-            <p>
-              <strong className="text-white">ATP Tour Santiago</strong> es el
-              punto de encuentro digital del tenis profesional chileno.
-              Acá vas a encontrar toda la información sobre los campeonatos
-              que se disputan en Santiago, los jugadores que compiten, el
-              estado de cada partido y las últimas noticias del circuito.
-            </p>
-            <p>
-              Un <strong className="text-amber-400">campeonato</strong> es un
-              torneo de tenis donde los jugadores se enfrentan en un bracket
-              de eliminación directa. Desde la primera ronda hasta la final,
-              cada partido cuenta, y el que pierde queda fuera. Así se
-              coronan los campeones.
-            </p>
-            <p>
-              Explorá las secciones para conocer a los jugadores, seguir los
-              partidos en vivo, enterarte de los próximos torneos y mantenerte
-              al día con todo lo que pasa en el ATP Tour Santiago.
-            </p>
-          </div>
+          <p className="max-w-xl text-lg leading-relaxed text-zinc-400">
+            El punto de encuentro digital del tenis profesional chileno.
+            Campeonatos, jugadores, partidos y noticias — todo en un solo
+            lugar.
+          </p>
         </section>
-        <HomeMenu />
+
+        {/* ── Navigation Grid ───────────────────────────────────── */}
+        <section className="w-full">
+          <HomeMenu />
+        </section>
+
+        {/* ── Timeline ──────────────────────────────────────────── */}
+        <CampeonatoTimeline />
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Trophy, Users, Activity, Newspaper } from 'lucide-react';
+import { Activity, Image, Newspaper, TrendingUp, Trophy, Users } from 'lucide-react';
 import { MENU_ITEMS, type MenuItem } from './menu-config';
 
 /**
@@ -11,7 +11,7 @@ import { MENU_ITEMS, type MenuItem } from './menu-config';
  * (no JSX, no side effects) means we can test it without rendering React.
  *
  * Acceptance criteria covered by these tests:
- *   - Exposes exactly 4 menu entries (Campeonatos, Jugadores, Partidos, Noticias)
+ *   - Exposes exactly 6 menu entries (Campeonatos, Jugadores, Partidos, Noticias, Ranking, Galería)
  *   - Every entry carries the fields the NavItem component consumes
  *   - `href` values are unique so each card points somewhere different
  *   - The color keys are part of the fixed palette supported by NavItem
@@ -22,12 +22,14 @@ describe('lib/menu-config', () => {
     '/jugadores',
     '/partidos',
     '/noticias',
+    '/ranking',
+    '/galeria',
   ] as const;
 
   const SUPPORTED_COLORS = ['amber', 'blue', 'green', 'purple'] as const;
 
-  it('exports exactly 4 menu items (one per site section)', () => {
-    expect(MENU_ITEMS).toHaveLength(4);
+  it('exports exactly 6 menu items (one per site section)', () => {
+    expect(MENU_ITEMS).toHaveLength(6);
   });
 
   it('includes every expected section href', () => {
@@ -95,6 +97,20 @@ describe('lib/menu-config', () => {
     const item = MENU_ITEMS.find((entry) => entry.href === '/noticias');
     expect(item).toBeDefined();
     expect(item?.icon).toBe(Newspaper);
+    expect(item?.color).toBe('purple');
+  });
+
+  it('Ranking uses the TrendingUp icon and green color', () => {
+    const item = MENU_ITEMS.find((entry) => entry.href === '/ranking');
+    expect(item).toBeDefined();
+    expect(item?.icon).toBe(TrendingUp);
+    expect(item?.color).toBe('green');
+  });
+
+  it('Galería uses the Image icon and purple color', () => {
+    const item = MENU_ITEMS.find((entry) => entry.href === '/galeria');
+    expect(item).toBeDefined();
+    expect(item?.icon).toBe(Image);
     expect(item?.color).toBe('purple');
   });
 });
