@@ -145,6 +145,24 @@ deployment, Husky/lint-staged, Renovate, shadcn/ui, visualización del bracket
 y timeline de partidos. Estas features están listadas en
 `sdd/init-repo/proposal` y se abordarán en cambios futuros.
 
+## Deploy a Render
+
+One-click deploy con Render Blueprints:
+
+1. Pushear el código a GitHub.
+2. Ir a <https://dashboard.render.com/> → **New +** → **Blueprint**.
+3. Seleccionar el repo `atp-tour-santiago`.
+4. Render detecta `render.yaml` automáticamente. Click **Apply**.
+5. En **Environment** del servicio, setear:
+   - `GOOGLE_CLIENT_ID` (de Google Cloud Console)
+   - `GOOGLE_CLIENT_SECRET` (de Google Cloud Console)
+6. En **Google Cloud Console → Credentials**, agregar la URL de Render a:
+   - Authorized JavaScript origins
+   - Authorized redirect URIs (`/api/auth/google/callback`)
+
+El SQLite vive en un disco persistente de 1 GB en `/var/data/prisma/prod.db`.
+Ver `DEPLOY.md` para detalles completos.
+
 ## CI
 
 Cada push y PR a `main` corre el gate completo en GitHub Actions

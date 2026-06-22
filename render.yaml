@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: atp-tour-santiago
+    runtime: node
+    plan: free
+    region: oregon # closest to Chile/South America
+    branch: main
+    buildCommand: pnpm install --frozen-lockfile && pnpm db:generate && pnpm prisma migrate deploy && pnpm build
+    startCommand: node scripts/start.js
+    healthCheckPath: /
+    disk:
+      name: atp-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/var/data/prisma/prod.db
+      - key: SESSION_SECRET
+        generateValue: true # Render generates this
+      # User must set these manually in Render dashboard:
+      # GOOGLE_CLIENT_ID (from Google Cloud Console)
+      # GOOGLE_CLIENT_SECRET (from Google Cloud Console)

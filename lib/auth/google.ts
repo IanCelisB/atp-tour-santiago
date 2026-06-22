@@ -3,6 +3,22 @@ import { Google } from 'arctic';
 let _google: Google | null = null;
 
 /**
+ * Resolves the public base URL for OAuth redirects.
+ *
+ * Priority:
+ *   1. RENDER_EXTERNAL_URL (injected by Render in production)
+ *   2. NEXTAUTH_URL (manual override)
+ *   3. NEXT_PUBLIC_BASE_URL (legacy)
+ *   4. http://localhost:3000 (local dev fallback)
+ */
+export function getGoogleBaseUrl(): string {
+  if (process.env.RENDER_EXTERNAL_URL) return process.env.RENDER_EXTERNAL_URL;
+  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+  return 'http://localhost:3000';
+}
+
+/**
  * Returns a configured Google OAuth client, or null if credentials are missing.
  *
  * Uses a singleton pattern — the same instance is reused across hot reloads.
@@ -14,9 +30,7 @@ export function getGoogleClient(): Google | null {
   if (!id || !secret) return null;
 
   if (!_google) {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
-    const redirectUri = `${baseUrl}/api/auth/google/callback`;
+    const redirectUri = `${getGoogleBaseUrl()}/api/auth/google/callback`;
     _google = new Google(id, secret, redirectUri);
   }
   return _google;

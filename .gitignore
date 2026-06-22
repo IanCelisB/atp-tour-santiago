@@ -47,5 +47,9 @@ next-env.d.ts
 /prisma/dev.db*
 /prisma/test.db*
 
+# production sqlite databases (Render persistent disk)
+*.db
+*.db-journal
+
 # uploaded photos (local storage only — see spec REQ-F-6)
 /uploads/
