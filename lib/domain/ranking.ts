@@ -16,16 +16,18 @@ export function puntosForPosition(
   puntosTotales: number,
   position: 1 | 2 | 3 | 4,
 ): number {
-  if (puntosTotales < 0) {
-    throw new Error('puntosTotales must be >= 0');
-  }
+  // Defensive: coerce to number, treat null/undefined/NaN as 0
+  const total =
+    typeof puntosTotales === 'number' && !Number.isNaN(puntosTotales)
+      ? Math.max(0, puntosTotales)
+      : 0;
   switch (position) {
     case 1:
-      return puntosTotales;
+      return total;
     case 2:
-      return Math.round(puntosTotales * 0.6);
+      return Math.round(total * 0.6);
     case 3:
     case 4:
-      return Math.round(puntosTotales * 0.36);
+      return Math.round(total * 0.36);
   }
 }

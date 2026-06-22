@@ -67,11 +67,11 @@ export default async function RankingPage() {
                     </a>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-mono font-semibold text-white">
-                    {entry.totalPuntos}
+                    {Number.isFinite(entry.totalPuntos) ? entry.totalPuntos : 0}
                   </td>
-                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{entry.titulos}</td>
-                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{entry.finales}</td>
-                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{entry.semifinales}</td>
+                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{Number.isFinite(entry.titulos) ? entry.titulos : 0}</td>
+                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{Number.isFinite(entry.finales) ? entry.finales : 0}</td>
+                  <td className="px-6 py-4 text-right text-sm text-zinc-300">{Number.isFinite(entry.semifinales) ? entry.semifinales : 0}</td>
                 </tr>
               ))}
             </tbody>

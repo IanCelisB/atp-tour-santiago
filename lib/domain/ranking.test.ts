@@ -35,10 +35,6 @@ describe('lib/domain/ranking', () => {
       expect(puntosForPosition(0, 2)).toBe(0);
     });
 
-    it('throws on negative puntosTotales', () => {
-      expect(() => puntosForPosition(-1, 1)).toThrow('puntosTotales must be >= 0');
-    });
-
     it('handles ATP 500 points correctly', () => {
       expect(puntosForPosition(500, 1)).toBe(500);
       expect(puntosForPosition(500, 2)).toBe(300);
@@ -55,6 +51,24 @@ describe('lib/domain/ranking', () => {
       expect(puntosForPosition(75, 2)).toBe(45);
       // 75 * 0.36 = 27 (exact)
       expect(puntosForPosition(75, 3)).toBe(27);
+    });
+
+    it('coerces null to 0 (defensive)', () => {
+      // @ts-expect-error - testing defensive coercion
+      expect(puntosForPosition(null, 1)).toBe(0);
+    });
+
+    it('coerces undefined to 0 (defensive)', () => {
+      // @ts-expect-error - testing defensive coercion
+      expect(puntosForPosition(undefined, 1)).toBe(0);
+    });
+
+    it('coerces NaN to 0 (defensive)', () => {
+      expect(puntosForPosition(NaN, 1)).toBe(0);
+    });
+
+    it('clamps negative values to 0 (defensive)', () => {
+      expect(puntosForPosition(-100, 1)).toBe(0);
     });
   });
 });
