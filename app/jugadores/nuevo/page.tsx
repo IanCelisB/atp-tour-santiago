@@ -1,19 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { RadarChart } from "@/components/RadarChart";
 import { createJugador } from "../actions";
+import { compressImage, formatFileSize } from "@/lib/image-compression";
+import { uploadImage } from "@/lib/actions/upload";
 
 /**
  * Create new Jugador form — client component.
  *
  * Features live-preview radar chart that updates as stat sliders move.
+ * Includes client-side image compression and upload.
  */
 export default function NuevoJugadorPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [originalSize, setOriginalSize] = useState<string | null>(null);
+  const [compressedSize, setCompressedSize] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [stats, setStats] = useState({
     resistencia: 50,
     velocidad: 50,
@@ -31,6 +40,48 @@ export default function NuevoJugadorPage() {
     { label: "EST", value: Math.round(((stats.estatura - 100) / 150) * 100) },
     { label: "POW", value: stats.poder },
   ];
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setOriginalSize(formatFileSize(file.size));
+
+    try {
+      // Compress client-side
+      const compressed = await compressImage(file);
+      setCompressedSize(formatFileSize(compressed.size));
+
+      // Upload compressed image
+      const formData = new FormData();
+      formData.append("file", compressed);
+      const result = await uploadImage(formData);
+
+      if (result.success) {
+        setFotoUrl(result.url);
+        setFotoPreview(result.url);
+      } else {
+        alert(result.error);
+        clearImage();
+      }
+    } catch {
+      alert("Error al procesar la imagen");
+      clearImage();
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function clearImage() {
+    setFotoUrl(null);
+    setFotoPreview(null);
+    setOriginalSize(null);
+    setCompressedSize(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -135,6 +186,62 @@ export default function NuevoJugadorPage() {
                   placeholder="Jugador profesional de tenis..."
                 />
               </div>
+            </div>
+
+            {/* Photo Upload */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-white">Foto del jugador</h2>
+
+              <input type="hidden" name="fotoUrl" value={fotoUrl ?? ""} />
+
+              {fotoPreview ? (
+                <div className="space-y-3">
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={fotoPreview}
+                      alt="Vista previa"
+                      className="h-32 w-32 rounded-2xl object-cover"
+                    />
+                    <div className="flex flex-col gap-2">
+                      {originalSize && compressedSize && (
+                        <p className="text-sm text-zinc-400">
+                          {originalSize} → {compressedSize}
+                        </p>
+                      )}
+                      <button
+                        type="button"
+                        onClick={clearImage}
+                        className="text-sm font-medium text-red-400 transition-colors hover:text-red-300"
+                      >
+                        Quitar imagen
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label
+                    htmlFor="foto"
+                    className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-white/10 bg-white/5 px-6 py-8 transition-colors hover:border-blue-500/50 hover:bg-white/[0.03]"
+                  >
+                    <span className="text-sm text-zinc-400">
+                      {isUploading ? "Procesando..." : "Seleccionar imagen"}
+                    </span>
+                    <span className="text-xs text-zinc-500">
+                      JPEG, PNG o WebP — máx. 10 MB
+                    </span>
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id="foto"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    disabled={isUploading}
+                    className="hidden"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Stats */}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { RadarChart } from "@/components/RadarChart";
 import { deleteJugador } from "../actions";
@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 /**
  * Player detail page — server component.
  *
- * Shows player info on the left, radar chart on the right,
- * and stat bars below.
+ * Shows player photo (or initials placeholder) on the left,
+ * radar chart on the right, and stat bars below.
  */
 export default async function JugadorDetailPage({
   params,
@@ -45,9 +45,14 @@ export default async function JugadorDetailPage({
     { label: "Poder", value: jugador.poder, color: "bg-red-500" },
   ];
 
+  const initials = `${jugador.nombre.charAt(0)}${jugador.apellido.charAt(0)}`.toUpperCase();
+
   async function handleDelete() {
     "use server";
-    await deleteJugador(id);
+    const result = await deleteJugador(id);
+    if (result.success) {
+      redirect("/jugadores");
+    }
   }
 
   return (
@@ -63,7 +68,20 @@ export default async function JugadorDetailPage({
         <div className="grid gap-10 lg:grid-cols-2">
           {/* Left: Player Info */}
           <div>
+            {/* Player Photo / Initials */}
             <div className="mb-6">
+              {jugador.fotoUrl ? (
+                <img
+                  src={jugador.fotoUrl}
+                  alt={`${jugador.nombre} ${jugador.apellido}`}
+                  className="mb-4 max-w-[300px] rounded-2xl object-cover"
+                />
+              ) : (
+                <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-blue-500/20 text-2xl font-bold text-blue-400">
+                  {initials}
+                </div>
+              )}
+
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
                 {jugador.nombre} {jugador.apellido}
               </h1>

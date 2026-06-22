@@ -47,6 +47,7 @@ export default async function EditarJugadorPage({
             pais: jugador.pais,
             ranking: jugador.ranking,
             bio: jugador.bio,
+            fotoUrl: jugador.fotoUrl,
             resistencia: jugador.resistencia,
             velocidad: jugador.velocidad,
             derecho: jugador.derecho,

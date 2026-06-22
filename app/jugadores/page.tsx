@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic";
  * Jugadores list page — server component.
  *
  * Fetches all jugadores from the database and renders them in a responsive
- * grid (2 col mobile, 3 col desktop). Each card links to the player detail.
+ * grid (2 col mobile, 3 col desktop). Each card shows a small thumbnail
+ * (or initials avatar) and links to the player detail.
  */
 export default async function JugadoresPage() {
   const jugadores = await prisma.jugador.findMany({
@@ -41,31 +42,48 @@ export default async function JugadoresPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {jugadores.map((j) => (
-              <Link
-                key={j.id}
-                href={`/jugadores/${j.id}`}
-                className="group block"
-              >
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:shadow-2xl hover:shadow-blue-500/25">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-white">
-                      {j.nombre} {j.apellido}
-                    </h2>
-                    {j.ranking && (
-                      <span className="rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-medium text-blue-400">
-                        #{j.ranking}
-                      </span>
-                    )}
+            {jugadores.map((j) => {
+              const initials = `${j.nombre.charAt(0)}${j.apellido.charAt(0)}`.toUpperCase();
+              return (
+                <Link
+                  key={j.id}
+                  href={`/jugadores/${j.id}`}
+                  className="group block"
+                >
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:shadow-2xl hover:shadow-blue-500/25">
+                    <div className="mb-3 flex items-center gap-3">
+                      {/* Thumbnail or initials avatar */}
+                      {j.fotoUrl ? (
+                        <img
+                          src={j.fotoUrl}
+                          alt={`${j.nombre} ${j.apellido}`}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20 text-sm font-bold text-blue-400">
+                          {initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <h2 className="text-lg font-semibold text-white">
+                          {j.nombre} {j.apellido}
+                        </h2>
+                        <p className="text-sm text-zinc-400">{j.pais}</p>
+                      </div>
+                      {j.ranking && (
+                        <span className="ml-auto rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-medium text-blue-400">
+                          #{j.ranking}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors group-hover:text-white">
+                      <span>Ver perfil</span>
+                      <span className="transition-transform group-hover:translate-x-1">→</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-zinc-400">{j.pais}</p>
-                  <div className="mt-4 flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors group-hover:text-white">
-                    <span>Ver perfil</span>
-                    <span className="transition-transform group-hover:translate-x-1">→</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
 
