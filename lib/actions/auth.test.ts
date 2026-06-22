@@ -9,6 +9,10 @@ import {
  *
  * Tests run against prisma/test.db with DI — the test PrismaClient
  * is injected directly into the domain action function.
+ *
+ * Note: Role is set at user creation time via getOrAssignFirstAdmin (Google
+ * OAuth) or the seed script. loginAction only authenticates existing users —
+ * it does not create users or assign roles.
  */
 
 import { loginAction } from '@/lib/actions/auth';

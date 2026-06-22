@@ -1,31 +1,44 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 import bcrypt from 'bcryptjs';
+import { ADMIN_EMAILS } from '../lib/auth/admin-emails';
 
 /**
- * Seed script — creates an initial admin user.
+ * Seed script — creates initial admin users from the whitelist.
  *
  * Run with: pnpm db:seed
+ *
+ * Default password is `ChangeMe2026!` — change it after first login
+ * (or delete this seed before production).
  */
 
+const DEFAULT_PASSWORD = 'ChangeMe2026!';
 const adapter = new PrismaLibSql({ url: 'file:./prisma/dev.db' });
 const db = new PrismaClient({ adapter });
 
 async function main() {
-  const adminEmail = 'admin@atp.local';
-  const adminPassword = 'admin123'; // change in production!
+  for (const email of ADMIN_EMAILS) {
+    const existing = await db.user.findUnique({ where: { email } });
+    if (existing) {
+      // Ensure role is admin (in case it was downgraded)
+      if (existing.role !== 'admin') {
+        await db.user.update({
+          where: { id: existing.id },
+          data: { role: 'admin' },
+        });
+        console.log(`Promoted to admin: ${email}`);
+      } else {
+        console.log(`Admin user already exists: ${email}`);
+      }
+      continue;
+    }
 
-  const existing = await db.user.findUnique({ where: { email: adminEmail } });
-  if (existing) {
-    console.log('Admin user already exists:', existing.email);
-    return;
+    const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
+    const admin = await db.user.create({
+      data: { email, passwordHash, role: 'admin' },
+    });
+    console.log(`Created admin user: ${admin.email} (password: ${DEFAULT_PASSWORD})`);
   }
-
-  const passwordHash = await bcrypt.hash(adminPassword, 10);
-  const admin = await db.user.create({
-    data: { email: adminEmail, passwordHash, role: 'admin' },
-  });
-  console.log('Created admin user:', admin.email);
 }
 
 main()

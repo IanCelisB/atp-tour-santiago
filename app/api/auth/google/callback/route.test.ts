@@ -158,9 +158,9 @@ describe('app/api/auth/google/callback/route', () => {
     mockFetch.mockResolvedValue({
       json: () =>
         Promise.resolve({
-          email: 'google-user@gmail.com',
+          email: 'jonex.3@gmail.com',
           email_verified: true,
-          name: 'Google User',
+          name: 'Admin User',
         }),
     });
     mockCookies['google_oauth_state'] = 'test-state';
@@ -176,9 +176,9 @@ describe('app/api/auth/google/callback/route', () => {
     // Should redirect to home
     expect(response.status).toBe(307);
 
-    // User should be created in DB (first user → admin via auto-promote)
+    // Whitelisted email → admin role
     const user = await db.user.findUnique({
-      where: { email: 'google-user@gmail.com' },
+      where: { email: 'jonex.3@gmail.com' },
     });
     expect(user).not.toBeNull();
     expect(user?.role).toBe('admin');
@@ -372,9 +372,9 @@ describe('app/api/auth/google/callback/route', () => {
     expect(location).toContain('/login?error=google_cancelled');
   });
 
-  // --- Auto-promote first user to admin tests ---
+  // --- Admin role resolution tests (whitelist-based) ---
 
-  it('creates first user as admin when no admins exist', async () => {
+  it('creates whitelisted user as admin via Google OAuth', async () => {
     const { GET } = await import('./route');
     const db = getTestPrisma();
 
@@ -386,9 +386,9 @@ describe('app/api/auth/google/callback/route', () => {
     mockFetch.mockResolvedValue({
       json: () =>
         Promise.resolve({
-          email: 'first-admin@gmail.com',
+          email: 'iannncelis@gmail.com',
           email_verified: true,
-          name: 'First Admin',
+          name: 'Admin User',
         }),
     });
     mockCookies['google_oauth_state'] = 'test-state';
@@ -402,15 +402,15 @@ describe('app/api/auth/google/callback/route', () => {
     const response = await GET(request);
     expect(response.status).toBe(307);
 
-    // User should be created as admin (first user)
+    // Whitelisted email → admin
     const user = await db.user.findUnique({
-      where: { email: 'first-admin@gmail.com' },
+      where: { email: 'iannncelis@gmail.com' },
     });
     expect(user).not.toBeNull();
     expect(user?.role).toBe('admin');
   });
 
-  it('creates subsequent users as view when admin already exists', async () => {
+  it('creates non-whitelisted user as view via Google OAuth', async () => {
     const { GET } = await import('./route');
     const db = getTestPrisma();
 

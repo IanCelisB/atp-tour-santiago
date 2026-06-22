@@ -14,40 +14,31 @@ afterAll(async () => {
 });
 
 describe('lib/auth/first-admin', () => {
-  it('creates a new user with role admin when no admin exists', async () => {
+  it('creates a new user with role admin when email is in whitelist', async () => {
     const db = getTestPrisma();
 
-    const result = await getOrAssignFirstAdmin(db, 'newuser@gmail.com');
+    const result = await getOrAssignFirstAdmin(db, 'jonex.3@gmail.com');
 
-    expect(result.email).toBe('newuser@gmail.com');
+    expect(result.email).toBe('jonex.3@gmail.com');
     expect(result.role).toBe('admin');
 
     const user = await db.user.findUnique({
-      where: { email: 'newuser@gmail.com' },
+      where: { email: 'jonex.3@gmail.com' },
     });
     expect(user).not.toBeNull();
     expect(user?.role).toBe('admin');
   });
 
-  it('creates a new user with role view when an admin already exists', async () => {
+  it('creates a new user with role view when email is NOT in whitelist', async () => {
     const db = getTestPrisma();
 
-    // Create an admin first
-    await db.user.create({
-      data: {
-        email: 'admin@gmail.com',
-        passwordHash: '',
-        role: 'admin',
-      },
-    });
+    const result = await getOrAssignFirstAdmin(db, 'random@gmail.com');
 
-    const result = await getOrAssignFirstAdmin(db, 'regular@gmail.com');
-
-    expect(result.email).toBe('regular@gmail.com');
+    expect(result.email).toBe('random@gmail.com');
     expect(result.role).toBe('view');
 
     const user = await db.user.findUnique({
-      where: { email: 'regular@gmail.com' },
+      where: { email: 'random@gmail.com' },
     });
     expect(user).not.toBeNull();
     expect(user?.role).toBe('view');
@@ -56,7 +47,6 @@ describe('lib/auth/first-admin', () => {
   it('returns existing user unchanged when email already exists', async () => {
     const db = getTestPrisma();
 
-    // Pre-create user with admin role
     await db.user.create({
       data: {
         email: 'existing@gmail.com',
@@ -90,23 +80,21 @@ describe('lib/auth/first-admin', () => {
     expect(users).toHaveLength(1);
   });
 
-  it('uses admin role only for the very first user', async () => {
+  it('returns existing whitelist user with their existing role (no auto-promote on read)', async () => {
     const db = getTestPrisma();
 
-    // First user → admin
-    const first = await getOrAssignFirstAdmin(db, 'first@gmail.com');
-    expect(first.role).toBe('admin');
+    // Create a whitelisted user with role=view (e.g. they signed in before being whitelisted)
+    await db.user.create({
+      data: {
+        email: 'iannncelis@gmail.com',
+        passwordHash: 'some-hash',
+        role: 'view',
+      },
+    });
 
-    // Second user → view
-    const second = await getOrAssignFirstAdmin(db, 'second@gmail.com');
-    expect(second.role).toBe('view');
+    const result = await getOrAssignFirstAdmin(db, 'iannncelis@gmail.com');
 
-    // Third user → view
-    const third = await getOrAssignFirstAdmin(db, 'third@gmail.com');
-    expect(third.role).toBe('view');
-
-    // Verify only one admin exists
-    const adminCount = await db.user.count({ where: { role: 'admin' } });
-    expect(adminCount).toBe(1);
+    // Returns existing role — promotion is the seed script's job
+    expect(result.role).toBe('view');
   });
 });

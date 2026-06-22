@@ -1,13 +1,14 @@
 import type { PrismaClient } from '@prisma/client';
+import { resolveRole } from './admin-emails';
 
 /**
- * Auto-promote first user to admin — used by Google OAuth callback and any
- * future registration flow.
+ * Get existing user or create a new one with role resolved from the admin
+ * email whitelist.
  *
- * Security: The first user to ever log in becomes admin. After that, new users
- * are always 'view' and admin promotion must be done via a separate script
- * (deliberate, audited action). This is appropriate for personal projects
- * where the operator is the first user.
+ * Used by Google OAuth callback and any future sign-up flow.
+ *
+ * Security: ONLY emails in lib/auth/admin-emails.ts get role='admin'. All
+ * other emails get role='view'. No fallback, no race conditions.
  */
 export async function getOrAssignFirstAdmin(
   db: PrismaClient,
@@ -23,14 +24,13 @@ export async function getOrAssignFirstAdmin(
     };
   }
 
-  // Check if any admin exists
-  const adminCount = await db.user.count({ where: { role: 'admin' } });
-  const role: 'admin' | 'view' = adminCount === 0 ? 'admin' : 'view';
+  // Resolve role from whitelist
+  const role = resolveRole(email);
 
   const user = await db.user.create({
     data: {
       email,
-      passwordHash: '',
+      passwordHash: '', // no password for OAuth users
       role,
     },
   });
