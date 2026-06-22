@@ -4,11 +4,11 @@ import { AlertCircle, X } from "lucide-react";
 
 const ERROR_MESSAGES: Record<string, string> = {
   google_cancelled:
-    "Cancelaste el inicio de sesión con Google. Podés intentar de nuevo.",
-  google_invalid: "La solicitud a Google fue inválida. Probá de nuevo.",
-  google_error: "Ocurrió un error con Google. Probá más tarde.",
+    "Cancelaste el inicio de sesión con Google. Puedes intentarlo de nuevo.",
+  google_invalid: "La solicitud a Google fue inválida. Intenta de nuevo.",
+  google_error: "Ocurrió un error con Google. Intenta más tarde.",
   google_not_configured:
-    "Google login no está configurado. Contactá al administrador.",
+    "Google login no está configurado. Contacta al administrador.",
 };
 
 export function ErrorPopup({ errorCode }: { errorCode: string | null }) {
@@ -25,7 +25,7 @@ export function ErrorPopup({ errorCode }: { errorCode: string | null }) {
   if (!visible || !errorCode) return null;
 
   const message =
-    ERROR_MESSAGES[errorCode] ?? "Error de autenticación. Probá de nuevo.";
+    ERROR_MESSAGES[errorCode] ?? "Error de autenticación. Intenta de nuevo.";
 
   return (
     <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300 shadow-lg backdrop-blur-xl">
