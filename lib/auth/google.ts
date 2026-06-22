@@ -10,12 +10,17 @@ let _google: Google | null = null;
  *   2. NEXTAUTH_URL (manual override)
  *   3. NEXT_PUBLIC_BASE_URL (legacy)
  *   4. http://localhost:3000 (local dev fallback)
+ *
+ * Strips trailing slashes so the constructed callback URL never has
+ * a double slash (e.g. `https://app.com//api/auth/google/callback`).
  */
 export function getGoogleBaseUrl(): string {
-  if (process.env.RENDER_EXTERNAL_URL) return process.env.RENDER_EXTERNAL_URL;
-  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
-  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
-  return 'http://localhost:3000';
+  const raw =
+    process.env.RENDER_EXTERNAL_URL ??
+    process.env.NEXTAUTH_URL ??
+    process.env.NEXT_PUBLIC_BASE_URL ??
+    'http://localhost:3000';
+  return raw.replace(/\/+$/, '');
 }
 
 /**

@@ -54,6 +54,24 @@ describe('lib/auth/google', () => {
       const { getGoogleBaseUrl } = await import('./google');
       expect(getGoogleBaseUrl()).toBe('http://localhost:3000');
     });
+
+    it('strips trailing slashes from RENDER_EXTERNAL_URL', async () => {
+      process.env.RENDER_EXTERNAL_URL = 'https://atp.onrender.com/';
+      const { getGoogleBaseUrl } = await import('./google');
+      expect(getGoogleBaseUrl()).toBe('https://atp.onrender.com');
+    });
+
+    it('strips trailing slashes from NEXTAUTH_URL', async () => {
+      process.env.NEXTAUTH_URL = 'https://atp.onrender.com///';
+      const { getGoogleBaseUrl } = await import('./google');
+      expect(getGoogleBaseUrl()).toBe('https://atp.onrender.com');
+    });
+
+    it('strips trailing slashes from NEXT_PUBLIC_BASE_URL', async () => {
+      process.env.NEXT_PUBLIC_BASE_URL = 'https://atp.onrender.com/';
+      const { getGoogleBaseUrl } = await import('./google');
+      expect(getGoogleBaseUrl()).toBe('https://atp.onrender.com');
+    });
   });
 
   describe('getGoogleClient', () => {

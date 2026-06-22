@@ -19,6 +19,8 @@ services:
         value: file:/var/data/prisma/prod.db
       - key: SESSION_SECRET
         generateValue: true # Render generates this
+      - key: NEXTAUTH_URL
+        value: https://atp-tour-santiago.onrender.com
       # User must set these manually in Render dashboard:
       # GOOGLE_CLIENT_ID (from Google Cloud Console)
       # GOOGLE_CLIENT_SECRET (from Google Cloud Console)

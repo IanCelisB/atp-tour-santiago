@@ -40,6 +40,12 @@ export async function loginAction(
 
 /**
  * Ensure an admin user exists — used by seed script.
+ *
+ * Idempotent and self-healing:
+ * - New user → create with hashed password
+ * - Existing user, empty hash (OAuth-only) → set hashed password
+ * - Existing user, non-empty hash (real password) → only promote role
+ *   (preserve the user's actual password)
  */
 export async function ensureAdmin(
   db: PrismaClient,
@@ -47,14 +53,32 @@ export async function ensureAdmin(
   password: string,
 ): Promise<void> {
   const existing = await db.user.findUnique({ where: { email } });
-  if (existing) {
+
+  if (!existing) {
+    const passwordHash = await hashPassword(password);
+    const admin = await db.user.create({
+      data: { email, passwordHash, role: 'admin' },
+    });
+    console.log('Created admin user:', admin.email);
+    return;
+  }
+
+  const needsPassword = !existing.passwordHash;
+  const needsRolePromotion = existing.role !== 'admin';
+
+  if (!needsPassword && !needsRolePromotion) {
     console.log('Admin user already exists:', existing.email);
     return;
   }
 
-  const passwordHash = await hashPassword(password);
-  const admin = await db.user.create({
-    data: { email, passwordHash, role: 'admin' },
-  });
-  console.log('Created admin user:', admin.email);
+  const data: { role?: string; passwordHash?: string } = {};
+  if (needsRolePromotion) data.role = 'admin';
+  if (needsPassword) data.passwordHash = await hashPassword(password);
+
+  await db.user.update({ where: { id: existing.id }, data });
+  console.log(
+    `Updated admin user: ${existing.email}` +
+      (needsPassword ? ' (set password)' : '') +
+      (needsRolePromotion ? ' (promoted to admin)' : ''),
+  );
 }
