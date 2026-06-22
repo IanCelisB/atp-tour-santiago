@@ -23,6 +23,7 @@ describe('lib/validators/campeonato', () => {
     fechaFin: new Date('2026-09-08T00:00:00Z'),
     sede: 'Santiago, Chile',
     categoria: 'ATP 250',
+    puntosTotales: 250,
   };
 
   describe('happy path (T1.a, T2.b)', () => {
@@ -205,6 +206,56 @@ describe('lib/validators/campeonato', () => {
         slug: 'totally-wrong-slug',
       } as CreateCampeonatoInput & { slug: string });
       expect(result.slug).toBe('atp-santiago-open-2026');
+    });
+  });
+
+  describe('puntosTotales validation', () => {
+    it('requires puntosTotales field', () => {
+      const { puntosTotales, ...rest } = validCampeonato;
+      void puntosTotales;
+      expect(createCampeonatoSchema.safeParse(rest).success).toBe(false);
+    });
+
+    it('rejects negative puntosTotales', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        puntosTotales: -1,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const msg = result.error.issues.map((i) => i.message).join(' ');
+        expect(msg).toMatch(/puntosTotales|>= 0/i);
+      }
+    });
+
+    it('accepts 0 puntosTotales', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        puntosTotales: 0,
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.puntosTotales).toBe(0);
+      }
+    });
+
+    it('accepts positive puntosTotales', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        puntosTotales: 500,
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.puntosTotales).toBe(500);
+      }
+    });
+
+    it('rejects non-integer puntosTotales', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        puntosTotales: 250.5,
+      });
+      expect(result.success).toBe(false);
     });
   });
 });

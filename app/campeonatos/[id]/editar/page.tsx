@@ -53,6 +53,7 @@ export default async function EditarCampeonatoPage({
             sede: campeonato.sede,
             categoria: campeonato.categoria,
             estado: campeonato.estado,
+            puntosTotales: campeonato.puntosTotales,
             ganadorId: campeonato.ganadorId,
           }}
           jugadores={jugadores}

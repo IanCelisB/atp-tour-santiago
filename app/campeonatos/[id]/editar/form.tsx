@@ -19,6 +19,7 @@ interface CampeonatoData {
   sede: string;
   categoria: string;
   estado: string;
+  puntosTotales: number;
   ganadorId: string | null;
 }
 
@@ -149,6 +150,27 @@ export default function EditarCampeonatoForm({
           defaultValue={campeonato.categoria}
           className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-zinc-500 transition-colors focus:border-blue-500 focus:outline-none"
         />
+      </div>
+
+      <div>
+        <label
+          htmlFor="puntosTotales"
+          className="mb-1 block text-sm text-zinc-400"
+        >
+          Puntos Totales a Repartir *
+        </label>
+        <input
+          type="number"
+          id="puntosTotales"
+          name="puntosTotales"
+          required
+          min="0"
+          defaultValue={campeonato.puntosTotales}
+          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-zinc-500 transition-colors focus:border-blue-500 focus:outline-none"
+        />
+        <p className="mt-1 text-xs text-zinc-500">
+          Se distribuyen entre los 3 primeros: 100% campeón, 60% finalista, 36% cada semifinalista.
+        </p>
       </div>
 
       <div>

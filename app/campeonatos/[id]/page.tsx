@@ -101,6 +101,10 @@ export default async function CampeonatoDetailPage({
                   <dd className="text-white">{campeonato.categoria}</dd>
                 </div>
                 <div>
+                  <dt className="text-sm text-zinc-400">Puntos a repartir</dt>
+                  <dd className="font-mono text-white">{campeonato.puntosTotales}</dd>
+                </div>
+                <div>
                   <dt className="text-sm text-zinc-400">Fecha de inicio</dt>
                   <dd className="text-white">
                     {formatDate(campeonato.fechaInicio)}

@@ -26,6 +26,9 @@ export async function createCampeonato(formData: FormData) {
       : undefined,
     sede: formData.get("sede"),
     categoria: formData.get("categoria"),
+    puntosTotales: formData.get("puntosTotales")
+      ? parseInt(formData.get("puntosTotales") as string, 10)
+      : 0,
     estado: formData.get("estado") || undefined,
     ganadorId: formData.get("ganadorId") || null,
   };
@@ -52,6 +55,9 @@ export async function updateCampeonato(id: string, formData: FormData) {
       : undefined,
     sede: formData.get("sede"),
     categoria: formData.get("categoria"),
+    puntosTotales: formData.get("puntosTotales")
+      ? parseInt(formData.get("puntosTotales") as string, 10)
+      : 0,
     estado: formData.get("estado") || undefined,
     ganadorId: formData.get("ganadorId") || null,
   };

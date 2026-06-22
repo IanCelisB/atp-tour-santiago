@@ -30,6 +30,7 @@ export type CampeonatoRow = {
   sede: string;
   categoria: string;
   estado: 'PROGRAMADO' | 'EN_CURSO' | 'FINALIZADO' | 'CANCELADO';
+  puntosTotales: number;
   ganadorId: string | null;
   ganador?: { nombre: string; apellido: string } | null;
   createdAt: Date;

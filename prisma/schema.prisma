@@ -31,8 +31,9 @@ model Campeonato {
   sede        String
   categoria   String
   // Allowed values: PROGRAMADO | EN_CURSO | FINALIZADO | CANCELADO (app-layer)
-  estado      String    @default("PROGRAMADO")
-  ganadorId   String?
+  estado        String    @default("PROGRAMADO")
+  puntosTotales Int       @default(0)
+  ganadorId     String?
   ganador     Jugador?  @relation("CampeonatoWinner", fields: [ganadorId], references: [id])
   partidos    Partido[]
   createdAt   DateTime  @default(now())

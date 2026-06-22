@@ -8,6 +8,7 @@ import { slugify } from '@/lib/slugify';
  *   - nombre, sede, categoria: non-empty strings
  *   - fechaInicio / fechaFin: required dates; fechaFin >= fechaInicio
  *   - estado: one of PROGRAMADO | EN_CURSO | FINALIZADO | CANCELADO
+ *   - puntosTotales: non-negative integer (total points to distribute)
  *   - slug: auto-derived from `nombre` (OQ-1); client input is ignored
  *
  * Slug auto-derivation is the only `.transform()` in this schema — we
@@ -36,6 +37,7 @@ export const createCampeonatoSchema = z
     }),
     sede: nonEmptyString(200),
     categoria: nonEmptyString(100),
+    puntosTotales: z.number().int().min(0, 'puntosTotales must be >= 0'),
     estado: campeonatoEstadoSchema.optional(),
     ganadorId: z.string().min(1).max(50).nullable().optional(),
     descripcion: z.string().max(2000).optional(),

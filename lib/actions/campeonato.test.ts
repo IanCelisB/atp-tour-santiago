@@ -30,6 +30,7 @@ const VALID_BASE = {
   fechaFin: new Date('2026-09-08T00:00:00Z'),
   sede: 'Santiago, Chile',
   categoria: 'ATP 250',
+  puntosTotales: 250,
 };
 
 function prisma(): PrismaClient {
@@ -127,6 +128,28 @@ describe('lib/actions/campeonato', () => {
       }
     });
 
+    it('persists puntosTotales on create', async () => {
+      const result = await createCampeonatoAction(prisma(), {
+        ...VALID_BASE,
+        puntosTotales: 500,
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.puntosTotales).toBe(500);
+
+      const row = await prisma().campeonato.findUnique({
+        where: { id: result.data!.id },
+      });
+      expect(row?.puntosTotales).toBe(500);
+    });
+
+    it('rejects create when puntosTotales is omitted', async () => {
+      const { puntosTotales, ...baseWithoutPuntos } = VALID_BASE;
+      void puntosTotales;
+      const result = await createCampeonatoAction(prisma(), baseWithoutPuntos);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/expected number/i);
+    });
+
     it('rejects non-FINALIZADO with ganadorId set', async () => {
       const db = prisma();
       const jugador = await db.jugador.create({
@@ -158,6 +181,7 @@ describe('lib/actions/campeonato', () => {
         fechaFin: new Date('2027-09-08T00:00:00Z'),
         sede: 'Viña del Mar, Chile',
         categoria: 'ATP 500',
+        puntosTotales: 500,
         estado: 'EN_CURSO',
       });
 
@@ -166,6 +190,7 @@ describe('lib/actions/campeonato', () => {
       expect(updated.data?.slug).toBe('atp-santiago-open-2027-renombrado');
       expect(updated.data?.estado).toBe('EN_CURSO');
       expect(updated.data?.sede).toBe('Viña del Mar, Chile');
+      expect(updated.data?.puntosTotales).toBe(500);
 
       // Re-read from DB to confirm persistence
       const row = await prisma().campeonato.findUnique({
@@ -173,6 +198,7 @@ describe('lib/actions/campeonato', () => {
       });
       expect(row?.nombre).toBe('ATP Santiago Open 2027 (Renombrado)');
       expect(row?.estado).toBe('EN_CURSO');
+      expect(row?.puntosTotales).toBe(500);
     });
 
     it('returns an error when the target id does not exist', async () => {
@@ -183,6 +209,7 @@ describe('lib/actions/campeonato', () => {
         fechaFin: new Date('2026-09-08T00:00:00Z'),
         sede: 'Nowhere',
         categoria: 'ATP 250',
+        puntosTotales: 250,
       });
       expect(updated.success).toBe(false);
     });
@@ -208,6 +235,24 @@ describe('lib/actions/campeonato', () => {
       } finally {
         await db.jugador.delete({ where: { id: jugador.id } });
       }
+    });
+
+    it('updates puntosTotales correctly', async () => {
+      const created = await createCampeonatoAction(prisma(), VALID_BASE);
+      expect(created.success).toBe(true);
+
+      const updated = await updateCampeonatoAction(prisma(), {
+        id: created.data!.id,
+        ...VALID_BASE,
+        puntosTotales: 500,
+      });
+      expect(updated.success).toBe(true);
+      expect(updated.data?.puntosTotales).toBe(500);
+
+      const row = await prisma().campeonato.findUnique({
+        where: { id: created.data!.id },
+      });
+      expect(row?.puntosTotales).toBe(500);
     });
 
     it('clears ganadorId when estado changes from FINALIZADO to non-FINALIZADO', async () => {
