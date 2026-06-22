@@ -116,3 +116,40 @@ model Foto {
   @@index([partidoId])
   @@index([context])
 }
+
+// ─── Noticia ──────────────────────────────────────────────────────────────────
+
+model Noticia {
+  id              String   @id @default(cuid())
+  titulo          String
+  slug            String   @unique
+  resumen         String
+  contenido       String   // HTML or markdown content
+  imagenUrl       String?  // Featured image
+  autor           String   @default("Redacción")
+  destacado       Boolean  @default(false)
+  fechaPublicacion DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([fechaPublicacion])
+  @@index([destacado])
+}
+
+// ─── GalleryItem ──────────────────────────────────────────────────────────────
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  titulo      String?
+  descripcion String?
+  url         String   // For photos: file path; for videos: embed URL
+  // Allowed values: FOTO | VIDEO (app-layer)
+  tipo        String   @default("FOTO")
+  thumbnailUrl String? // Video thumbnail (auto-generated or manual)
+  embedUrl    String?  // For videos: YouTube/Vimeo embed URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tipo])
+  @@index([createdAt])
+}
