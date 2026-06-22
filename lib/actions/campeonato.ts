@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import { createCampeonatoSchema } from '@/lib/validators/campeonato';
 
 /**
  * Campeonato CRUD domain functions (spec REQ-T-1..5, OQ-1, OQ-2).
@@ -20,19 +21,6 @@ import type { PrismaClient } from '@prisma/client';
  * error }` on validation/persistence failure. Never throws.
  */
 
-export interface CreateCampeonatoInput {
-  nombre: string;
-  fechaInicio: Date;
-  fechaFin: Date;
-  sede: string;
-  categoria: string;
-  estado?: 'PROGRAMADO' | 'EN_CURSO' | 'FINALIZADO' | 'CANCELADO';
-}
-
-export interface UpdateCampeonatoInput extends CreateCampeonatoInput {
-  id: string;
-}
-
 export type CampeonatoRow = {
   id: string;
   nombre: string;
@@ -50,25 +38,96 @@ export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
-// ─── STUBS — implemented GREEN in the next TDD step ───────────────────────────
-
 export async function createCampeonatoAction(
-  _db: PrismaClient,
-  _input: CreateCampeonatoInput,
+  db: PrismaClient,
+  input: Record<string, unknown>,
 ): Promise<ActionResult<CampeonatoRow>> {
-  throw new Error('createCampeonatoAction not implemented');
+  const parsed = createCampeonatoSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? 'Validation failed',
+    };
+  }
+
+  // Strip `descripcion` — validator allows it but Prisma schema doesn't have the column
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { slug, estado, descripcion, ...data } = parsed.data;
+
+  try {
+    const row = await db.campeonato.create({
+      data: { ...data, slug, estado },
+    });
+    return { success: true, data: row as CampeonatoRow };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : 'Database error',
+    };
+  }
 }
 
 export async function updateCampeonatoAction(
-  _db: PrismaClient,
-  _input: UpdateCampeonatoInput,
-): Promise<ActionResult< CampeonatoRow>> {
-  throw new Error('updateCampeonatoAction not implemented');
+  db: PrismaClient,
+  input: Record<string, unknown>,
+): Promise<ActionResult<CampeonatoRow>> {
+  const { id, ...rest } = input;
+  if (typeof id !== 'string' || !id) {
+    return { success: false, error: 'id is required' };
+  }
+
+  const parsed = createCampeonatoSchema.safeParse(rest);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? 'Validation failed',
+    };
+  }
+
+  // Strip `descripcion` — validator allows it but Prisma schema doesn't have the column
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { slug, estado, descripcion, ...data } = parsed.data;
+
+  try {
+    const row = await db.campeonato.update({
+      where: { id },
+      data: { ...data, slug, estado },
+    });
+    return { success: true, data: row as CampeonatoRow };
+  } catch (e) {
+    // Prisma P2025 = RecordNotFound
+    if (
+      e instanceof Error &&
+      'code' in e &&
+      (e as { code: string }).code === 'P2025'
+    ) {
+      return { success: false, error: 'Record not found' };
+    }
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : 'Database error',
+    };
+  }
 }
 
 export async function deleteCampeonatoAction(
-  _db: PrismaClient,
-  _id: string,
+  db: PrismaClient,
+  id: string,
 ): Promise<ActionResult<{ id: string }>> {
-  throw new Error('deleteCampeonatoAction not implemented');
+  try {
+    await db.campeonato.delete({ where: { id } });
+    return { success: true, data: { id } };
+  } catch (e) {
+    if (
+      e instanceof Error &&
+      'code' in e &&
+      (e as { code: string }).code === 'P2025'
+    ) {
+      return { success: false, error: 'Record not found' };
+    }
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : 'Database error',
+    };
+  }
 }
