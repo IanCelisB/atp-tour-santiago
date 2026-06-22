@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { deleteNoticia } from "../actions";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { isAdmin } from "@/lib/auth/session";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,7 @@ export default async function NoticiaDetailPage({
           <div className="prose prose-invert max-w-none">
             <div
               className="text-zinc-300 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: noticia.contenido }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(noticia.contenido) }}
             />
           </div>
 
