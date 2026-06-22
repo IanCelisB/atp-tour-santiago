@@ -25,6 +25,11 @@ export default async function EditarCampeonatoPage({
     notFound();
   }
 
+  const jugadores = await prisma.jugador.findMany({
+    orderBy: { apellido: 'asc' },
+    select: { id: true, nombre: true, apellido: true },
+  });
+
   return (
     <main className="flex min-h-screen flex-col bg-black px-6 py-24 font-sans text-zinc-50">
       <div className="mx-auto w-full max-w-2xl">
@@ -48,7 +53,9 @@ export default async function EditarCampeonatoPage({
             sede: campeonato.sede,
             categoria: campeonato.categoria,
             estado: campeonato.estado,
+            ganadorId: campeonato.ganadorId,
           }}
+          jugadores={jugadores}
         />
       </div>
     </main>

@@ -44,12 +44,17 @@ export async function cleanNoticiaTable(): Promise<void> {
   await getTestPrisma().noticia.deleteMany();
 }
 
+export async function cleanPartidoTable(): Promise<void> {
+  await getTestPrisma().partido.deleteMany();
+}
+
 export async function cleanGalleryItemTable(): Promise<void> {
   await getTestPrisma().galleryItem.deleteMany();
 }
 
 export const TEST_DB_HOOKS = {
   beforeEach: async (): Promise<void> => {
+    await cleanPartidoTable();
     await cleanCampeonatoTable();
     await cleanJugadorTable();
     await cleanNoticiaTable();
@@ -82,6 +87,13 @@ export function setupNoticiaCleanup(): void {
   beforeEach(TEST_DB_HOOKS.beforeEach);
 }
 export function teardownNoticiaClient(): void {
+  afterAll(TEST_DB_HOOKS.afterAll);
+}
+
+export function setupPartidoCleanup(): void {
+  beforeEach(TEST_DB_HOOKS.beforeEach);
+}
+export function teardownPartidoClient(): void {
   afterAll(TEST_DB_HOOKS.afterAll);
 }
 

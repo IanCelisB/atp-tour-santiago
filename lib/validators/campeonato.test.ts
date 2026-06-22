@@ -52,7 +52,13 @@ describe('lib/validators/campeonato', () => {
 
     it('accepts all four valid estado values (T3.a precondition)', () => {
       for (const estado of CAMPEONATO_ESTADOS) {
-        const result = createCampeonatoSchema.safeParse({ ...validCampeonato, estado });
+        const input = {
+          ...validCampeonato,
+          estado,
+          // FINALIZADO requires ganadorId
+          ...(estado === 'FINALIZADO' ? { ganadorId: 'test-player-id' } : {}),
+        };
+        const result = createCampeonatoSchema.safeParse(input);
         expect(result.success, `estado=${estado}`).toBe(true);
       }
     });
@@ -117,6 +123,77 @@ describe('lib/validators/campeonato', () => {
         estado: 'BANANA',
       });
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('ganadorId invariant', () => {
+    it('requires ganadorId when estado is FINALIZADO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'FINALIZADO',
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const msg = result.error.issues.map((i) => i.message).join(' ');
+        expect(msg).toMatch(/ganador/i);
+      }
+    });
+
+    it('accepts ganadorId when estado is FINALIZADO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'FINALIZADO',
+        ganadorId: 'player-123',
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.ganadorId).toBe('player-123');
+      }
+    });
+
+    it('rejects ganadorId when estado is PROGRAMADO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'PROGRAMADO',
+        ganadorId: 'player-123',
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const msg = result.error.issues.map((i) => i.message).join(' ');
+        expect(msg).toMatch(/ganador/i);
+      }
+    });
+
+    it('rejects ganadorId when estado is EN_CURSO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'EN_CURSO',
+        ganadorId: 'player-123',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects ganadorId when estado is CANCELADO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'CANCELADO',
+        ganadorId: 'player-123',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('allows null ganadorId when estado is not FINALIZADO', () => {
+      const result = createCampeonatoSchema.safeParse({
+        ...validCampeonato,
+        estado: 'PROGRAMADO',
+        ganadorId: null,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('defaults ganadorId to null in output', () => {
+      const result = createCampeonatoSchema.parse(validCampeonato);
+      expect(result.ganadorId).toBeNull();
     });
   });
 

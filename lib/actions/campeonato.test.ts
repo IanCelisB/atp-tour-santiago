@@ -98,6 +98,52 @@ describe('lib/actions/campeonato', () => {
       });
       expect(result.success).toBe(false);
     });
+
+    it('rejects FINALIZADO without ganadorId', async () => {
+      const result = await createCampeonatoAction(prisma(), {
+        ...VALID_BASE,
+        estado: 'FINALIZADO',
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/ganador/i);
+    });
+
+    it('accepts FINALIZADO with a valid ganadorId', async () => {
+      const db = prisma();
+      const jugador = await db.jugador.create({
+        data: { nombre: 'Test', apellido: 'Player', pais: 'CL', ranking: 1 },
+      });
+      try {
+        const result = await createCampeonatoAction(db, {
+          ...VALID_BASE,
+          estado: 'FINALIZADO',
+          ganadorId: jugador.id,
+        });
+        expect(result.success).toBe(true);
+        expect(result.data?.estado).toBe('FINALIZADO');
+        expect(result.data?.ganadorId).toBe(jugador.id);
+      } finally {
+        await db.jugador.delete({ where: { id: jugador.id } });
+      }
+    });
+
+    it('rejects non-FINALIZADO with ganadorId set', async () => {
+      const db = prisma();
+      const jugador = await db.jugador.create({
+        data: { nombre: 'Test', apellido: 'Player', pais: 'CL', ranking: 1 },
+      });
+      try {
+        const result = await createCampeonatoAction(db, {
+          ...VALID_BASE,
+          estado: 'PROGRAMADO',
+          ganadorId: jugador.id,
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toMatch(/ganador/i);
+      } finally {
+        await db.jugador.delete({ where: { id: jugador.id } });
+      }
+    });
   });
 
   describe('updateCampeonatoAction', () => {
@@ -139,6 +185,56 @@ describe('lib/actions/campeonato', () => {
         categoria: 'ATP 250',
       });
       expect(updated.success).toBe(false);
+    });
+
+    it('allows setting ganadorId when estado=FINALIZADO on update', async () => {
+      const db = prisma();
+      const created = await createCampeonatoAction(db, VALID_BASE);
+      expect(created.success).toBe(true);
+
+      const jugador = await db.jugador.create({
+        data: { nombre: 'Winner', apellido: 'Test', pais: 'CL', ranking: 1 },
+      });
+      try {
+        const updated = await updateCampeonatoAction(db, {
+          id: created.data!.id,
+          ...VALID_BASE,
+          estado: 'FINALIZADO',
+          ganadorId: jugador.id,
+        });
+        expect(updated.success).toBe(true);
+        expect(updated.data?.estado).toBe('FINALIZADO');
+        expect(updated.data?.ganadorId).toBe(jugador.id);
+      } finally {
+        await db.jugador.delete({ where: { id: jugador.id } });
+      }
+    });
+
+    it('clears ganadorId when estado changes from FINALIZADO to non-FINALIZADO', async () => {
+      const db = prisma();
+      const jugador = await db.jugador.create({
+        data: { nombre: 'Winner', apellido: 'Test', pais: 'CL', ranking: 1 },
+      });
+      try {
+        const created = await createCampeonatoAction(db, {
+          ...VALID_BASE,
+          estado: 'FINALIZADO',
+          ganadorId: jugador.id,
+        });
+        expect(created.success).toBe(true);
+        expect(created.data?.ganadorId).toBe(jugador.id);
+
+        const updated = await updateCampeonatoAction(db, {
+          id: created.data!.id,
+          ...VALID_BASE,
+          estado: 'EN_CURSO',
+        });
+        expect(updated.success).toBe(true);
+        expect(updated.data?.estado).toBe('EN_CURSO');
+        expect(updated.data?.ganadorId).toBeNull();
+      } finally {
+        await db.jugador.delete({ where: { id: jugador.id } });
+      }
     });
   });
 

@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { updateCampeonato } from "../../actions";
 import { CAMPEONATO_ESTADOS } from "@/lib/validators/campeonato";
 
+interface JugadorOption {
+  id: string;
+  nombre: string;
+  apellido: string;
+}
+
 interface CampeonatoData {
   id: string;
   nombre: string;
@@ -13,6 +19,7 @@ interface CampeonatoData {
   sede: string;
   categoria: string;
   estado: string;
+  ganadorId: string | null;
 }
 
 /**
@@ -22,12 +29,17 @@ interface CampeonatoData {
  */
 export default function EditarCampeonatoForm({
   campeonato,
+  jugadores,
 }: {
   campeonato: CampeonatoData;
+  jugadores: JugadorOption[];
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEstado, setSelectedEstado] = useState(campeonato.estado);
+
+  const showGanador = selectedEstado === "FINALIZADO";
 
   function toDateString(date: Date): string {
     return date.toISOString().split("T")[0];
@@ -146,7 +158,8 @@ export default function EditarCampeonatoForm({
         <select
           id="estado"
           name="estado"
-          defaultValue={campeonato.estado}
+          value={selectedEstado}
+          onChange={(e) => setSelectedEstado(e.target.value)}
           className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white transition-colors focus:border-blue-500 focus:outline-none"
         >
           {CAMPEONATO_ESTADOS.map((e) => (
@@ -156,6 +169,32 @@ export default function EditarCampeonatoForm({
           ))}
         </select>
       </div>
+
+      {showGanador && (
+        <div>
+          <label
+            htmlFor="ganadorId"
+            className="mb-1 block text-sm text-zinc-400"
+          >
+            Ganador del Campeonato *
+          </label>
+          <select
+            id="ganadorId"
+            name="ganadorId"
+            defaultValue={campeonato.ganadorId ?? ""}
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white transition-colors focus:border-blue-500 focus:outline-none"
+          >
+            <option value="" className="text-black">
+              Seleccionar ganador
+            </option>
+            {jugadores.map((j) => (
+              <option key={j.id} value={j.id} className="text-black">
+                {j.nombre} {j.apellido}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <button
         type="submit"

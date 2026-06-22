@@ -4,9 +4,9 @@ import { prisma } from "@/lib/db";
 /**
  * Vertical timeline showing the last 5 completed campeonatos with their winners.
  *
- * Fetches FINALIZADO campeonatos ordered by fechaFin desc, then looks up the
- * final match (ronda: "F") to get the winner name. Falls back to "Por definir"
- * when no winner data is available.
+ * Fetches FINALIZADO campeonatos ordered by fechaFin desc, using the direct
+ * `ganador` relation on Campeonato. Falls back to "Por definir" when no
+ * winner data is available.
  *
  * Server component — no client JS shipped.
  */
@@ -16,12 +16,7 @@ export async function CampeonatoTimeline() {
     orderBy: { fechaFin: "desc" },
     take: 5,
     include: {
-      partidos: {
-        where: { ronda: "F" },
-        include: {
-          ganador: { select: { nombre: true, apellido: true } },
-        },
-      },
+      ganador: { select: { nombre: true, apellido: true } },
     },
   });
 
@@ -46,8 +41,7 @@ export async function CampeonatoTimeline() {
 
       <div className="relative ml-4 border-l border-white/10 pl-8">
         {campeonatos.map((camp, index) => {
-          const finalMatch = camp.partidos[0];
-          const winner = finalMatch?.ganador;
+          const winner = camp.ganador;
           const winnerName = winner
             ? `${winner.nombre} ${winner.apellido}`
             : "Por definir";

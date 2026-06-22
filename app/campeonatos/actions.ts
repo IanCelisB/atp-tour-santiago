@@ -27,6 +27,7 @@ export async function createCampeonato(formData: FormData) {
     sede: formData.get("sede"),
     categoria: formData.get("categoria"),
     estado: formData.get("estado") || undefined,
+    ganadorId: formData.get("ganadorId") || null,
   };
 
   const result = await createCampeonatoAction(prisma, input);
@@ -52,6 +53,7 @@ export async function updateCampeonato(id: string, formData: FormData) {
     sede: formData.get("sede"),
     categoria: formData.get("categoria"),
     estado: formData.get("estado") || undefined,
+    ganadorId: formData.get("ganadorId") || null,
   };
 
   const result = await updateCampeonatoAction(prisma, input);

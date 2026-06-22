@@ -37,16 +37,38 @@ export const createCampeonatoSchema = z
     sede: nonEmptyString(200),
     categoria: nonEmptyString(100),
     estado: campeonatoEstadoSchema.optional(),
+    ganadorId: z.string().min(1).max(50).nullable().optional(),
     descripcion: z.string().max(2000).optional(),
   })
   .refine((data) => data.fechaFin.getTime() >= data.fechaInicio.getTime(), {
     message: 'fechaFin must be on or after fechaInicio',
     path: ['fechaFin'],
   })
+  .superRefine((data, ctx) => {
+    const estado = data.estado ?? 'PROGRAMADO';
+    if (estado === 'FINALIZADO') {
+      if (!data.ganadorId || data.ganadorId.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'ganadorId is required when estado is FINALIZADO',
+          path: ['ganadorId'],
+        });
+      }
+    } else {
+      if (data.ganadorId != null && data.ganadorId !== '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'ganadorId must be null when estado is not FINALIZADO',
+          path: ['ganadorId'],
+        });
+      }
+    }
+  })
   .transform((data) => ({
     ...data,
     estado: data.estado ?? 'PROGRAMADO',
     slug: slugify(data.nombre),
+    ganadorId: data.ganadorId ?? null,
   }));
 
 export type CreateCampeonatoInput = z.input<typeof createCampeonatoSchema>;

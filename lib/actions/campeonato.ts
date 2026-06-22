@@ -30,6 +30,8 @@ export type CampeonatoRow = {
   sede: string;
   categoria: string;
   estado: 'PROGRAMADO' | 'EN_CURSO' | 'FINALIZADO' | 'CANCELADO';
+  ganadorId: string | null;
+  ganador?: { nombre: string; apellido: string } | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -52,11 +54,11 @@ export async function createCampeonatoAction(
 
   // Strip `descripcion` — validator allows it but Prisma schema doesn't have the column
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug, estado, descripcion, ...data } = parsed.data;
+  const { slug, estado, descripcion, ganadorId, ...data } = parsed.data;
 
   try {
     const row = await db.campeonato.create({
-      data: { ...data, slug, estado },
+      data: { ...data, slug, estado, ganadorId: ganadorId ?? null },
     });
     return { success: true, data: row as CampeonatoRow };
   } catch (e) {
@@ -86,12 +88,12 @@ export async function updateCampeonatoAction(
 
   // Strip `descripcion` — validator allows it but Prisma schema doesn't have the column
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug, estado, descripcion, ...data } = parsed.data;
+  const { slug, estado, descripcion, ganadorId, ...data } = parsed.data;
 
   try {
     const row = await db.campeonato.update({
       where: { id },
-      data: { ...data, slug, estado },
+      data: { ...data, slug, estado, ganadorId: ganadorId ?? null },
     });
     return { success: true, data: row as CampeonatoRow };
   } catch (e) {
